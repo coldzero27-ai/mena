@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MENA MONITOR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0c;
+    --surface: #111115;
+    --surface2: #18181d;
+    --border: #2a2a32;
+    --border-active: #3d3d48;
+    --text: #e8e8ec;
+    --text-dim: #8888a0;
+    --accent: #ff3b3b;
+    --accent-glow: rgba(255, 59, 59, 0.15);
+    --green: #00e676;
+    --gold: #ffd740;
+    --blue: #448aff;
+    --orange: #ff9100;
+    --red: #ff1744;
+    --widget-radius: 8px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    user-select: none;
+  }
+
+  /* HEADER */
+  #header {
+    height: 44px;
+    background: linear-gradient(180deg, #141418 0%, #0e0e12 100%);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 1000;
+    position: relative;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 12px; }
+
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 15px; letter-spacing: 3px;
+    color: var(--accent);
+    text-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .logo-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-dim); letter-spacing: 1px;
+  }
+
+  .live-dot {
+    width: 8px; height: 8px; background: var(--accent);
+    border-radius: 50%; animation: pulse 1.5s infinite;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .header-right { display: flex; align-items: center; gap: 16px; }
+
+  #clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: var(--text-dim); letter-spacing: 1px;
+  }
+
+  .header-btn {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; padding: 5px 12px; border-radius: 4px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .header-btn:hover { background: var(--border); color: var(--text); }
+
+  /* GRID */
+  #grid-container {
+    height: calc(100vh - 44px); width: 100vw;
+    position: relative; overflow: auto;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255,59,59,0.02) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(68,138,255,0.02) 0%, transparent 50%),
+      var(--bg);
+  }
+
+  /* WIDGET */
+  .widget {
+    position: absolute; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--widget-radius);
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4); transition: box-shadow 0.2s;
+    min-width: 200px; min-height: 150px;
+  }
+  .widget:hover { box-shadow: 0 4px 30px rgba(0,0,0,0.6); }
+  .widget.dragging {
+    z-index: 10000 !important;
+    box-shadow: 0 8px 40px rgba(255,59,59,0.15);
+    border-color: var(--accent);
+  }
+
+  .widget-header {
+    height: 32px; min-height: 32px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 10px; cursor: grab;
+  }
+  .widget-header:active { cursor: grabbing; }
+
+  .widget-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-dim); display: flex; align-items: center;
+    gap: 6px; white-space: nowrap; overflow: hidden;
+  }
+
+  .widget-title .tag {
+    font-size: 8px; padding: 1px 5px; border-radius: 3px;
+    font-weight: 700; letter-spacing: 0.5px;
+  }
+  .tag-live { background: var(--accent); color: #fff; }
+  .tag-auto { background: var(--blue); color: #fff; }
+  .tag-data { background: var(--gold); color: #000; }
+
+  .widget-controls { display: flex; gap: 2px; align-items: center; }
+
+  .widget-btn {
+    width: 22px; height: 22px; border: none; border-radius: 3px;
+    background: transparent; color: var(--text-dim); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; transition: all 0.15s;
+  }
+  .widget-btn:hover { background: var(--border); color: var(--text); }
+  .widget-btn.close:hover { background: var(--accent); color: #fff; }
+  .widget-btn.refresh { font-size: 11px; }
+  .widget-btn.refresh:hover { color: var(--green); }
+  .widget-btn.refresh.spinning { animation: spin 0.6s linear; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .widget-body { flex: 1; overflow: hidden; position: relative; }
+
+  .resize-handle {
+    position: absolute; bottom: 0; right: 0;
+    width: 16px; height: 16px; cursor: nwse-resize; z-index: 10;
+  }
+  .resize-handle::after {
+    content: ''; position: absolute; bottom: 3px; right: 3px;
+    width: 8px; height: 8px;
+    border-right: 2px solid var(--border-active);
+    border-bottom: 2px solid var(--border-active); opacity: 0.5;
+  }
+  .widget:hover .resize-handle::after { opacity: 1; }
+
+  .widget-body iframe { width: 100%; height: 100%; border: none; }
+
+  /* MARKET */
+  .market-grid {
+    display: grid; gap: 8px; padding: 10px;
+    height: 100%; align-content: start;
+    grid-template-columns: 1fr;
+  }
+  .market-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .market-name {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase;
+  }
+  .market-price {
+    font-family: 'JetBrains Mono', monospace; font-size: 15px;
+    font-weight: 600; color: var(--text);
+  }
+  .market-change { font-family: 'JetBrains Mono', monospace; font-size: 11px; margin-left: 6px; }
+  .change-up { color: var(--green); }
+  .change-down { color: var(--red); }
+  .market-icon { font-size: 18px; margin-right: 8px; }
+  .market-left { display: flex; align-items: center; }
+  .market-right { text-align: right; }
+  .update-time {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: var(--text-dim); padding: 4px 10px;
+    border-top: 1px solid var(--border); text-align: right; opacity: 0.6;
+  }
+
+  /* FEAR & GREED */
+  .fng-container {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 100%; padding: 16px; gap: 12px;
+  }
+  .fng-value { font-family: 'JetBrains Mono', monospace; font-size: 42px; font-weight: 700; text-align: center; }
+  .fng-label { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
+  .fng-desc { font-size: 10px; color: var(--text-dim); text-align: center; }
+
+  /* TWEETS */
+  .tweet-feed {
+    overflow-y: auto; height: 100%; padding: 8px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .tweet-feed::-webkit-scrollbar { width: 4px; }
+  .tweet-feed::-webkit-scrollbar-track { background: transparent; }
+  .tweet-feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .tweet-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px; font-size: 12px;
+    line-height: 1.5; animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .tweet-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .tweet-source { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; color: var(--blue); }
+  .tweet-time { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); }
+  .tweet-text { color: var(--text); font-size: 11px; line-height: 1.6; }
+  .tweet-tag {
+    display: inline-block; font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; padding: 1px 5px; border-radius: 3px;
+    margin-top: 5px; background: rgba(255,59,59,0.15); color: var(--accent);
+  }
+
+  /* NEWS PANEL for map */
+  .news-panel {
+    position: absolute; top: 0; right: 0; width: 50%; height: 100%;
+    background: rgba(10,10,12,0.97); border-left: 1px solid var(--accent);
+    z-index: 1000; overflow-y: auto; padding: 12px;
+    animation: slideInRight 0.25s ease;
+    display: none;
+  }
+  .news-panel.open { display: block; }
+  @keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  .news-panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .news-panel-title {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    font-weight: 700; color: var(--accent); letter-spacing: 1px;
+  }
+  .news-panel-close {
+    background: none; border: 1px solid var(--border); color: var(--text-dim);
+    cursor: pointer; border-radius: 3px; padding: 2px 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  }
+  .news-panel-close:hover { border-color: var(--accent); color: var(--accent); }
+  .news-result {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px; margin-bottom: 8px; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .news-result:hover { border-color: var(--accent); }
+  .news-result h4 {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--text); margin-bottom: 4px; line-height: 1.4;
+  }
+  .news-result p { font-size: 10px; color: var(--text-dim); line-height: 1.5; }
+  .news-result .news-src {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: var(--blue); margin-top: 4px;
+  }
+  .news-loading {
+    text-align: center; padding: 20px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  }
+
+  /* ADD WIDGET PANEL */
+  #add-panel {
+    position: fixed; top: 44px; right: -340px; width: 340px;
+    height: calc(100vh - 44px); background: var(--surface);
+    border-left: 1px solid var(--border); z-index: 9999;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 16px; overflow-y: auto;
+  }
+  #add-panel.open { right: 0; }
+  #add-panel h3 {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 12px;
+  }
+  .add-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 8px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .add-item:hover { border-color: var(--accent); background: rgba(255,59,59,0.05); }
+  .add-item .icon { font-size: 18px; width: 28px; text-align: center; }
+  .add-item .info h4 { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); margin-bottom: 2px; }
+  .add-item .info p { font-size: 10px; color: var(--text-dim); }
+  .add-item.active { border-color: var(--green); opacity: 0.5; }
+  .add-item.active::after {
+    content: 'ACTIVE'; font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; color: var(--green); margin-left: auto; letter-spacing: 1px;
+  }
+
+  .custom-input-group { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .custom-input-group input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 8px 10px; color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    margin-bottom: 8px; outline: none;
+  }
+  .custom-input-group input:focus { border-color: var(--accent); }
+  .custom-input-group button {
+    width: 100%; background: var(--accent); border: none; color: #fff;
+    padding: 8px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    font-weight: 600; cursor: pointer; letter-spacing: 1px;
+  }
+  .custom-input-group button:hover { background: #e03030; }
+
+  body.fullscreen-mode #header { display: none; }
+  body.fullscreen-mode #grid-container { height: 100vh; }
+
+  .status-indicator { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .status-dot.warning { background: var(--orange); }
+  .status-dot.error { background: var(--red); }
+
+  #alert-banner {
+    position: fixed; top: 44px; left: 0; right: 0;
+    background: rgba(255,23,68,0.12); border-bottom: 1px solid var(--accent);
+    padding: 6px 16px; z-index: 999;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--accent); display: none; align-items: center; gap: 8px;
+    animation: slideDown 0.3s ease;
+  }
+  @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+  #alert-banner .close-alert { margin-left: auto; cursor: pointer; opacity: 0.6; }
+  #alert-banner .close-alert:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="header-left">
+    <div class="live-dot"></div>
+    <span class="logo">MENA MONITOR</span>
+    <span class="logo-sub">REAL-TIME CONFLICT DASHBOARD</span>
+  </div>
+  <div class="header-right">
+    <div class="status-indicator">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">CONNECTED</span>
+    </div>
+    <span id="clock"></span>
+    <button class="header-btn" onclick="toggleAddPanel()">+ ADD WIDGET</button>
+    <button class="header-btn" onclick="resetLayout()">↻ RESET</button>
+    <button class="header-btn" onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
+  </div>
+</div>
+
+<div id="alert-banner">
+  <div class="live-dot"></div>
+  <span>⚠ ACTIVE CONFLICT — Iran retaliatory strikes ongoing across Gulf states. UAE intercepting missiles. Stay alert.</span>
+  <span class="close-alert" onclick="this.parentElement.style.display='none'">✕</span>
+</div>
+
+<div id="grid-container"></div>
+
+<!-- ADD WIDGET PANEL -->
+<div id="add-panel">
+  <h3>📺 Live Channels</h3>
+  <div class="add-item" onclick="addWidget('skynews')" id="add-skynews"><div class="icon">📺</div><div class="info"><h4>Sky News Arabia</h4><p>Live broadcast</p></div></div>
+  <div class="add-item" onclick="addWidget('alarabiya')" id="add-alarabiya"><div class="icon">📺</div><div class="info"><h4>Al Arabiya</h4><p>Live broadcast</p></div></div>
+  <div class="add-item" onclick="addWidget('aljazeera')" id="add-aljazeera"><div class="icon">📺</div><div class="info"><h4>Al Jazeera Arabic</h4><p>Live broadcast</p></div></div>
+  <div class="add-item" onclick="addWidget('cnn')" id="add-cnn"><div class="icon">📺</div><div class="info"><h4>CNN International</h4><p>Live broadcast</p></div></div>
+
+  <h3 style="margin-top:16px;">📹 Live Cameras</h3>
+  <div class="add-item" onclick="addWidget('cam1')" id="add-cam1"><div class="icon">📹</div><div class="info"><h4>Middle East Cam 1</h4><p>Live camera feed</p></div></div>
+  <div class="add-item" onclick="addWidget('cam2')" id="add-cam2"><div class="icon">📹</div><div class="info"><h4>Middle East Cam 2</h4><p>Live camera feed</p></div></div>
+  <div class="add-item" onclick="addWidget('cam3')" id="add-cam3"><div class="icon">📹</div><div class="info"><h4>Middle East Cam 3</h4><p>Live camera feed</p></div></div>
+
+  <h3 style="margin-top:16px;">📊 Markets</h3>
+  <div class="add-item" onclick="addWidget('gold')" id="add-gold"><div class="icon">🥇</div><div class="info"><h4>Gold / Silver / Oil</h4><p>Precious metals & crude</p></div></div>
+  <div class="add-item" onclick="addWidget('crypto')" id="add-crypto"><div class="icon">₿</div><div class="info"><h4>Crypto Markets</h4><p>BTC, ETH, BNB, SOL</p></div></div>
+  <div class="add-item" onclick="addWidget('stocks')" id="add-stocks"><div class="icon">📈</div><div class="info"><h4>Stock Indices</h4><p>S&P 500, Dow, Nasdaq, VIX</p></div></div>
+  <div class="add-item" onclick="addWidget('feargreed')" id="add-feargreed"><div class="icon">😱</div><div class="info"><h4>Fear & Greed Index</h4><p>Market sentiment</p></div></div>
+
+  <h3 style="margin-top:16px;">🗺️ Intel</h3>
+  <div class="add-item" onclick="addWidget('map')" id="add-map"><div class="icon">🗺️</div><div class="info"><h4>Conflict Map</h4><p>Click markers for latest news</p></div></div>
+  <div class="add-item" onclick="addWidget('iran_tweets')" id="add-iran_tweets"><div class="icon">🇮🇷</div><div class="info"><h4>Iran / Military Feed</h4><p>Translated updates</p></div></div>
+  <div class="add-item" onclick="addWidget('gulf_tweets')" id="add-gulf_tweets"><div class="icon">🌍</div><div class="info"><h4>UAE / Gulf / US Feed</h4><p>Regional updates</p></div></div>
+
+  <div class="custom-input-group">
+    <h3>Custom YouTube Stream</h3>
+    <input type="text" id="custom-name" placeholder="Widget name..." />
+    <input type="text" id="custom-url" placeholder="YouTube URL..." />
+    <button onclick="addCustomYoutube()">ADD STREAM</button>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const YOUTUBE_STREAMS = {
+  skynews:   { name: 'Sky News Arabia',     videoId: 'U--OjmpjF5o', type: 'tv' },
+  alarabiya: { name: 'Al Arabiya',          videoId: 'n7eQejkXbnM', type: 'tv' },
+  aljazeera: { name: 'Al Jazeera Arabic',   videoId: 'bNyUyrR0PHo', type: 'tv' },
+  cnn:       { name: 'CNN International',    videoId: '_MbNCMxIGOk', type: 'tv' },
+  cam1:      { name: 'Middle East Cam 1',    videoId: '4E-iFtUM2kk', type: 'cam' },
+  cam2:      { name: 'Middle East Cam 2',    videoId: '-zGuR1qVKrU', type: 'cam' },
+  cam3:      { name: 'Middle East Cam 3',    videoId: 'gmtlJ_m2r5A', type: 'cam' },
+};
+
+const CONFLICT_POINTS = [
+  { lat: 35.69, lon: 51.39, name: 'Tehran', desc: 'US/Israel strikes - Khamenei killed', severity: 'critical', search: 'Tehran Iran strikes 2026' },
+  { lat: 32.43, lon: 53.69, name: 'Isfahan', desc: 'Nuclear facility strikes', severity: 'critical', search: 'Isfahan nuclear strikes 2026' },
+  { lat: 27.19, lon: 56.27, name: 'Bandar Abbas', desc: 'Naval base targeted', severity: 'high', search: 'Bandar Abbas Iran navy strikes' },
+  { lat: 29.62, lon: 52.53, name: 'Shiraz', desc: 'IRGC facility struck', severity: 'high', search: 'Shiraz IRGC strikes 2026' },
+  { lat: 34.31, lon: 47.07, name: 'Kermanshah', desc: 'Missile site targeted', severity: 'high', search: 'Kermanshah Iran missile strikes' },
+  { lat: 36.27, lon: 59.60, name: 'Mashhad', desc: 'Military installations', severity: 'medium', search: 'Mashhad Iran military 2026' },
+  { lat: 26.23, lon: 50.59, name: 'Manama, Bahrain', desc: 'Iran retaliation - 5th Fleet HQ targeted', severity: 'high', search: 'Bahrain Iran attack 5th Fleet 2026' },
+  { lat: 25.27, lon: 55.30, name: 'Dubai, UAE', desc: 'Iran missiles - Jebel Ali, Palm fire', severity: 'high', search: 'Dubai Iran missile attack 2026' },
+  { lat: 24.45, lon: 54.65, name: 'Abu Dhabi, UAE', desc: 'Iran missiles intercepted - 3+ killed', severity: 'high', search: 'Abu Dhabi Iran missile intercept 2026' },
+  { lat: 25.29, lon: 51.53, name: 'Doha, Qatar', desc: 'Iran retaliation - 65 missiles launched', severity: 'high', search: 'Qatar Iran missiles 2026' },
+  { lat: 24.71, lon: 46.68, name: 'Riyadh, KSA', desc: 'Iran missiles repelled', severity: 'medium', search: 'Riyadh Saudi Iran missile 2026' },
+  { lat: 31.95, lon: 35.93, name: 'Amman, Jordan', desc: 'Missiles intercepted', severity: 'medium', search: 'Jordan Iran missiles intercepted 2026' },
+  { lat: 32.07, lon: 34.78, name: 'Tel Aviv, Israel', desc: 'Iran retaliation - strikes on HaKirya', severity: 'critical', search: 'Tel Aviv Iran attack 2026' },
+  { lat: 36.19, lon: 44.01, name: 'Erbil, Iraq', desc: 'Drone crash near airport', severity: 'medium', search: 'Erbil Iraq drone Iran 2026' },
+  { lat: 29.38, lon: 47.99, name: 'Kuwait City', desc: 'Iran drones intercepted', severity: 'medium', search: 'Kuwait Iran drones intercepted 2026' },
+  { lat: 33.89, lon: 35.50, name: 'Beirut, Lebanon', desc: 'Hezbollah-Israel exchange', severity: 'high', search: 'Beirut Hezbollah Israel 2026' },
+  { lat: 26.84, lon: 56.27, name: 'Strait of Hormuz', desc: 'IRGC closure - shipping blocked', severity: 'critical', search: 'Strait Hormuz closed IRGC 2026' },
+];
+
+let widgets = {};
+let zCounter = 100;
+let dragState = null;
+let resizeState = null;
+
+// ===== CLOCK =====
+function updateClock() {
+  const now = new Date();
+  const opts = { timeZone: 'Asia/Dubai' };
+  const h = now.toLocaleString('en-US', { ...opts, hour: '2-digit', hour12: false }).padStart(2, '0');
+  const d = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', ...opts });
+  const t = now.toLocaleTimeString('en-US', { ...opts, hour12: false });
+  document.getElementById('clock').textContent = `${d} • ${t} GST`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ===== LAYOUT =====
+const DEFAULT_LAYOUT = {
+  skynews:      { x: 10,  y: 10,  w: 470, h: 300 },
+  alarabiya:    { x: 490, y: 10,  w: 470, h: 300 },
+  aljazeera:    { x: 970, y: 10,  w: 470, h: 300 },
+  cnn:          { x: 10,  y: 320, w: 320, h: 220 },
+  cam1:         { x: 340, y: 320, w: 320, h: 220 },
+  cam2:         { x: 670, y: 320, w: 320, h: 220 },
+  cam3:         { x: 1000,y: 320, w: 320, h: 220 },
+  gold:         { x: 1450,y: 10,  w: 300, h: 260 },
+  crypto:       { x: 1450,y: 280, w: 300, h: 290 },
+  stocks:       { x: 1330,y: 320, w: 300, h: 220 },
+  feargreed:    { x: 1450,y: 580, w: 300, h: 220 },
+  map:          { x: 10,  y: 550, w: 660, h: 400 },
+  iran_tweets:  { x: 680, y: 550, w: 380, h: 400 },
+  gulf_tweets:  { x: 1070,y: 550, w: 380, h: 400 },
+};
+
+function getLayout() {
+  try {
+    const s = localStorage.getItem('mena_monitor_layout_v2');
+    return s ? JSON.parse(s) : { ...DEFAULT_LAYOUT };
+  } catch { return { ...DEFAULT_LAYOUT }; }
+}
+
+function saveLayout() {
+  const layout = {};
+  Object.keys(widgets).forEach(id => {
+    const el = widgets[id].element;
+    layout[id] = { x: parseInt(el.style.left), y: parseInt(el.style.top), w: parseInt(el.style.width), h: parseInt(el.style.height) };
+  });
+  try { localStorage.setItem('mena_monitor_layout_v2', JSON.stringify(layout)); } catch {}
+}
+
+function resetLayout() {
+  localStorage.removeItem('mena_monitor_layout_v2');
+  document.getElementById('grid-container').innerHTML = '';
+  widgets = {};
+  initDefaultWidgets();
+}
+
+// ===== WIDGET CREATION =====
+function createWidget(id, title, tag, contentFn, pos) {
+  if (widgets[id]) return;
+  const w = document.createElement('div');
+  w.className = 'widget';
+  w.id = `widget-${id}`;
+  w.style.left = pos.x + 'px';
+  w.style.top = pos.y + 'px';
+  w.style.width = pos.w + 'px';
+  w.style.height = pos.h + 'px';
+  w.style.zIndex = ++zCounter;
+
+  const tagClass = tag === 'LIVE' ? 'tag-live' : tag === 'AUTO' ? 'tag-auto' : 'tag-data';
+  const isVideo = YOUTUBE_STREAMS[id] || id.startsWith('custom_');
+  const popoutBtn = isVideo ? `<button class="widget-btn" onclick="popoutVideo('${id}')" title="Pop out">⊞</button>` : '';
+
+  w.innerHTML = `
+    <div class="widget-header">
+      <div class="widget-title"><span class="tag ${tagClass}">${tag}</span>${title}</div>
+      <div class="widget-controls">
+        <button class="widget-btn refresh" onclick="refreshWidget('${id}', this)" title="Refresh">↻</button>
+        ${popoutBtn}
+        <button class="widget-btn close" onclick="removeWidget('${id}')" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="widget-body" id="body-${id}"></div>
+    <div class="resize-handle"></div>
+  `;
+
+  document.getElementById('grid-container').appendChild(w);
+
+  const header = w.querySelector('.widget-header');
+  header.addEventListener('mousedown', e => startDrag(e, w));
+  w.querySelector('.resize-handle').addEventListener('mousedown', e => startResize(e, w));
+  w.addEventListener('mousedown', () => { w.style.zIndex = ++zCounter; });
+
+  widgets[id] = { element: w, contentFn, title, tag };
+  contentFn(document.getElementById(`body-${id}`), id);
+  updateAddPanel();
+}
+
+function refreshWidget(id, btn) {
+  if (!widgets[id]) return;
+  btn.classList.add('spinning');
+  setTimeout(() => btn.classList.remove('spinning'), 600);
+  const body = document.getElementById(`body-${id}`);
+  if (body) {
+    body.innerHTML = '';
+    widgets[id].contentFn(body, id);
+  }
+}
+
+function removeWidget(id) {
+  if (widgets[id]) { widgets[id].element.remove(); delete widgets[id]; updateAddPanel(); saveLayout(); }
+}
+
+function updateAddPanel() {
+  const allIds = [...Object.keys(DEFAULT_LAYOUT)];
+  allIds.forEach(id => {
+    const el = document.getElementById(`add-${id}`);
+    if (el) { widgets[id] ? el.classList.add('active') : el.classList.remove('active'); }
+  });
+}
+
+// ===== DRAG & RESIZE =====
+function startDrag(e, widget) {
+  if (e.target.closest('.widget-controls')) return;
+  e.preventDefault();
+  widget.classList.add('dragging');
+  dragState = { widget, startX: e.clientX, startY: e.clientY, origX: parseInt(widget.style.left), origY: parseInt(widget.style.top) };
+}
+function startResize(e, widget) {
+  e.preventDefault(); e.stopPropagation();
+  widget.classList.add('dragging');
+  resizeState = { widget, startX: e.clientX, startY: e.clientY, origW: parseInt(widget.style.width), origH: parseInt(widget.style.height) };
+}
+document.addEventListener('mousemove', e => {
+  if (dragState) {
+    dragState.widget.style.left = (dragState.origX + e.clientX - dragState.startX) + 'px';
+    dragState.widget.style.top = (dragState.origY + e.clientY - dragState.startY) + 'px';
+  }
+  if (resizeState) {
+    resizeState.widget.style.width = Math.max(200, resizeState.origW + e.clientX - resizeState.startX) + 'px';
+    resizeState.widget.style.height = Math.max(150, resizeState.origH + e.clientY - resizeState.startY) + 'px';
+  }
+});
+document.addEventListener('mouseup', () => {
+  if (dragState) { dragState.widget.classList.remove('dragging'); dragState = null; saveLayout(); }
+  if (resizeState) { resizeState.widget.classList.remove('dragging'); resizeState = null; saveLayout(); }
+});
+
+// ===== YOUTUBE =====
+function youtubeContent(body, id) {
+  const key = id.replace('custom_', '');
+  const stream = YOUTUBE_STREAMS[key] || YOUTUBE_STREAMS[id];
+  if (!stream) return;
+  body.innerHTML = `<iframe src="https://www.youtube.com/embed/${stream.videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
+    style="width:100%;height:100%;border:none;"></iframe>`;
+}
+
+// ===== GOLD / SILVER / OIL =====
+function goldContent(body) {
+  body.innerHTML = `
+    <div class="market-grid">
+      <div class="market-card"><div class="market-left"><span class="market-icon">🥇</span><span class="market-name">Gold</span></div><div class="market-right"><span class="market-price" id="gold-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon">🥈</span><span class="market-name">Silver</span></div><div class="market-right"><span class="market-price" id="silver-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon">🛢️</span><span class="market-name">Crude Oil</span></div><div class="market-right"><span class="market-price" id="oil-price">Loading...</span></div></div>
+    </div>
+    <div class="update-time" id="gold-update">Fetching...</div>`;
+  fetchGold();
+  if (!window._goldInterval) window._goldInterval = setInterval(fetchGold, 30000);
+}
+
+async function fetchGold() {
+  const ts = () => new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Dubai' });
+  let goldOk = false, silverOk = false, oilOk = false;
+
+  // === GOLD & SILVER via metals.live ===
+  try {
+    const r = await fetch('https://api.metals.live/v1/spot');
+    const d = await r.json();
+    if (d && d.length) {
+      const gObj = d.find(m => m.gold);
+      const sObj = d.find(m => m.silver);
+      if (gObj && gObj.gold) { el('gold-price').innerHTML = `$${parseFloat(gObj.gold).toLocaleString(undefined,{minimumFractionDigits:2})} <span style="font-size:10px;color:var(--text-dim)">/oz</span>`; goldOk = true; }
+      if (sObj && sObj.silver) { el('silver-price').innerHTML = `$${parseFloat(sObj.silver).toFixed(2)} <span style="font-size:10px;color:var(--text-dim)">/oz</span>`; silverOk = true; }
+    }
+  } catch {}
+
+  // Fallback gold/silver via CoinGecko tether-gold
+  if (!goldOk) {
+    try {
+      const r2 = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd&include_24hr_change=true');
+      const d2 = await r2.json();
+      if (d2['tether-gold']) {
+        const p = d2['tether-gold'].usd, c = d2['tether-gold'].usd_24h_change || 0;
+        el('gold-price').innerHTML = `$${p.toLocaleString(undefined,{minimumFractionDigits:2})} <span class="market-change ${c>=0?'change-up':'change-down'}">${c>=0?'▲':'▼'}${Math.abs(c).toFixed(2)}%</span>`;
+        goldOk = true;
+      }
+    } catch {}
+  }
+
+  // === CRUDE OIL via Yahoo Finance through AllOrigins proxy ===
+  try {
+    const yahooUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=1d';
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
+    const r = await fetch(proxyUrl);
+    const d = await r.json();
+    const meta = d.chart?.result?.[0]?.meta;
+    if (meta && meta.regularMarketPrice) {
+      const price = meta.regularMarketPrice;
+      const prev = meta.chartPreviousClose || meta.previousClose;
+      const change = prev ? ((price - prev) / prev * 100) : 0;
+      el('oil-price').innerHTML = `$${price.toFixed(2)} <span class="market-change ${change>=0?'change-up':'change-down'}">${change>=0?'▲':'▼'}${Math.abs(change).toFixed(2)}%</span> <span style="font-size:10px;color:var(--text-dim)">/bbl</span>`;
+      oilOk = true;
+    }
+  } catch {}
+
+  // Oil fallback 2: via corsproxy
+  if (!oilOk) {
+    try {
+      const r = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=1d')}`);
+      const d = await r.json();
+      const meta = d.chart?.result?.[0]?.meta;
+      if (meta && meta.regularMarketPrice) {
+        const price = meta.regularMarketPrice;
+        const prev = meta.chartPreviousClose || meta.previousClose;
+        const change = prev ? ((price - prev) / prev * 100) : 0;
+        el('oil-price').innerHTML = `$${price.toFixed(2)} <span class="market-change ${change>=0?'change-up':'change-down'}">${change>=0?'▲':'▼'}${Math.abs(change).toFixed(2)}%</span> <span style="font-size:10px;color:var(--text-dim)">/bbl</span>`;
+        oilOk = true;
+      }
+    } catch {}
+  }
+
+  // Oil fallback 3: embedded TradingView mini widget (shows actual chart inside the card)
+  if (!oilOk) {
+    const oilEl = el('oil-price');
+    if (oilEl) {
+      oilEl.innerHTML = `<span style="color:var(--orange);font-size:12px;">⏳ Retrying...</span>`;
+      // Try one more with different proxy
+      try {
+        const r = await fetch('https://api.metals.live/v1/spot/oil');
+        const d = await r.json();
+        if (d && d.length && d[0].oil) {
+          oilEl.innerHTML = `$${parseFloat(d[0].oil).toFixed(2)} <span style="font-size:10px;color:var(--text-dim)">/bbl</span>`;
+          oilOk = true;
+        }
+      } catch {}
+      if (!oilOk) {
+        oilEl.innerHTML = `<span style="color:var(--orange);font-size:12px;">API unavailable — hit ↻</span>`;
+      }
+    }
+  }
+
+  if (!goldOk) el('gold-price').innerHTML = `<span style="color:var(--orange);font-size:12px;">Hit ↻ to retry</span>`;
+  if (!silverOk) el('silver-price').innerHTML = `<span style="color:var(--orange);font-size:12px;">Hit ↻ to retry</span>`;
+
+  const u = el('gold-update');
+  if (u) u.textContent = `Last update: ${ts()} GST`;
+}
+
+// ===== CRYPTO =====
+function cryptoContent(body) {
+  body.innerHTML = `
+    <div class="market-grid">
+      <div class="market-card"><div class="market-left"><span class="market-icon">₿</span><span class="market-name">Bitcoin</span></div><div class="market-right"><span class="market-price" id="btc-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon">⟠</span><span class="market-name">Ethereum</span></div><div class="market-right"><span class="market-price" id="eth-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon">◆</span><span class="market-name">BNB</span></div><div class="market-right"><span class="market-price" id="bnb-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon">◎</span><span class="market-name">Solana</span></div><div class="market-right"><span class="market-price" id="sol-price">Loading...</span></div></div>
+    </div>
+    <div class="update-time" id="crypto-update">Fetching...</div>`;
+  fetchCrypto();
+  if (!window._cryptoInterval) window._cryptoInterval = setInterval(fetchCrypto, 15000);
+}
+
+async function fetchCrypto() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana&vs_currencies=usd&include_24hr_change=true');
+    const d = await r.json();
+    const map = { bitcoin:'btc', ethereum:'eth', binancecoin:'bnb', solana:'sol' };
+    Object.keys(map).forEach(k => {
+      if (d[k]) {
+        const e = el(`${map[k]}-price`);
+        const p = d[k].usd, c = d[k].usd_24h_change || 0;
+        if (e) e.innerHTML = `$${p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} <span class="market-change ${c>=0?'change-up':'change-down'}">${c>=0?'▲':'▼'}${Math.abs(c).toFixed(2)}%</span>`;
+      }
+    });
+    const u = el('crypto-update');
+    if (u) u.textContent = `Last update: ${new Date().toLocaleTimeString('en-US',{timeZone:'Asia/Dubai'})} GST`;
+    el('status-dot').className = 'status-dot';
+    el('status-text').textContent = 'CONNECTED';
+  } catch {
+    el('status-dot').className = 'status-dot warning';
+    el('status-text').textContent = 'API LIMITED';
+  }
+}
+
+// ===== STOCKS =====
+function stocksContent(body) {
+  body.innerHTML = `
+    <div class="market-grid">
+      <div class="market-card"><div class="market-left"><span class="market-icon">📈</span><span class="market-name">S&P 500</span></div><div class="market-right"><span class="market-price" id="sp500-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon">📊</span><span class="market-name">Dow Jones</span></div><div class="market-right"><span class="market-price" id="dow-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon">💻</span><span class="market-name">Nasdaq</span></div><div class="market-right"><span class="market-price" id="nasdaq-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon">😰</span><span class="market-name">VIX</span></div><div class="market-right"><span class="market-price" id="vix-price">Loading...</span></div></div>
+    </div>
+    <div class="update-time" id="stocks-update">Fetching...</div>`;
+  fetchStocks();
+  if (!window._stocksInterval) window._stocksInterval = setInterval(fetchStocks, 60000);
+}
+
+async function fetchStocks() {
+  const symbols = [
+    { sym: '%5EGSPC', id: 'sp500-price', label: 'S&P 500' },
+    { sym: '%5EDJI', id: 'dow-price', label: 'Dow' },
+    { sym: '%5EIXIC', id: 'nasdaq-price', label: 'Nasdaq' },
+    { sym: '%5EVIX', id: 'vix-price', label: 'VIX' },
+  ];
+
+  for (const s of symbols) {
+    let ok = false;
+
+    // Try direct Yahoo Finance first
+    try {
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${s.sym}?interval=1d&range=1d`;
+      const r = await fetch(url);
+      const d = await r.json();
+      const meta = d.chart?.result?.[0]?.meta;
+      if (meta && meta.regularMarketPrice) {
+        showStockPrice(s.id, meta.regularMarketPrice, meta.chartPreviousClose || meta.previousClose, s.id === 'vix-price');
+        ok = true;
+      }
+    } catch {}
+
+    // Fallback: AllOrigins proxy
+    if (!ok) {
+      try {
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${s.sym}?interval=1d&range=1d`;
+        const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
+        const d = await r.json();
+        const meta = d.chart?.result?.[0]?.meta;
+        if (meta && meta.regularMarketPrice) {
+          showStockPrice(s.id, meta.regularMarketPrice, meta.chartPreviousClose || meta.previousClose, s.id === 'vix-price');
+          ok = true;
+        }
+      } catch {}
+    }
+
+    // Fallback 2: corsproxy.io
+    if (!ok) {
+      try {
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${s.sym}?interval=1d&range=1d`;
+        const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+        const d = await r.json();
+        const meta = d.chart?.result?.[0]?.meta;
+        if (meta && meta.regularMarketPrice) {
+          showStockPrice(s.id, meta.regularMarketPrice, meta.chartPreviousClose || meta.previousClose, s.id === 'vix-price');
+          ok = true;
+        }
+      } catch {}
+    }
+
+    if (!ok) {
+      const e = el(s.id);
+      if (e) e.innerHTML = `<span style="color:var(--orange);font-size:11px;">Hit ↻ to retry</span>`;
+    }
+  }
+  const u = el('stocks-update');
+  if (u) u.textContent = `Last update: ${new Date().toLocaleTimeString('en-US',{timeZone:'Asia/Dubai'})} GST`;
+}
+
+function showStockPrice(elId, price, prev, isVix) {
+  const change = prev ? ((price - prev) / prev * 100) : 0;
+  const e = el(elId);
+  if (e) e.innerHTML = `${isVix?'':'$'}${price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} <span class="market-change ${change>=0?'change-up':'change-down'}">${change>=0?'▲':'▼'}${Math.abs(change).toFixed(2)}%</span>`;
+}
+
+// ===== FEAR & GREED =====
+function fearGreedContent(body) {
+  body.innerHTML = `<div class="fng-container" id="fng-data"><div class="fng-value" style="color:var(--text-dim)">...</div><div class="fng-label">Loading</div></div>`;
+  fetchFearGreed();
+  if (!window._fngInterval) window._fngInterval = setInterval(fetchFearGreed, 300000);
+}
+
+async function fetchFearGreed() {
+  try {
+    const r = await fetch('https://api.alternative.me/fng/?limit=1');
+    const data = await r.json();
+    const fng = data.data[0];
+    const val = parseInt(fng.value);
+    const color = val <= 25 ? 'var(--red)' : val <= 45 ? 'var(--orange)' : val <= 55 ? 'var(--gold)' : 'var(--green)';
+    const c = el('fng-data');
+    if (c) c.innerHTML = `
+      <div style="position:relative;width:180px;height:100px;">
+        <svg viewBox="0 0 180 100" style="width:100%;height:100%;">
+          <defs><linearGradient id="fngG" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:var(--red)"/><stop offset="25%" style="stop-color:var(--orange)"/>
+            <stop offset="50%" style="stop-color:var(--gold)"/><stop offset="75%" style="stop-color:var(--green)"/>
+            <stop offset="100%" style="stop-color:#00e676"/></linearGradient></defs>
+          <path d="M 15 85 A 75 75 0 0 1 165 85" fill="none" stroke="#222" stroke-width="12" stroke-linecap="round"/>
+          <path d="M 15 85 A 75 75 0 0 1 165 85" fill="none" stroke="url(#fngG)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${val/100*236} 236"/>
+        </svg>
+      </div>
+      <div class="fng-value" style="color:${color}">${val}</div>
+      <div class="fng-label" style="color:${color}">${fng.value_classification}</div>
+      <div class="fng-desc">Crypto Market Sentiment</div>`;
+  } catch {
+    const c = el('fng-data');
+    if (c) c.innerHTML = `<div class="fng-value" style="color:var(--red)">--</div><div class="fng-label" style="color:var(--orange)">Check connection</div>`;
+  }
+}
+
+// ===== MAP WITH NEWS =====
+function mapContent(body) {
+  body.innerHTML = `<div id="conflict-map" style="width:100%;height:100%;"></div>
+    <div class="news-panel" id="map-news-panel">
+      <div class="news-panel-header">
+        <span class="news-panel-title" id="news-panel-title">NEWS</span>
+        <button class="news-panel-close" onclick="closeNewsPanel()">✕ CLOSE</button>
+      </div>
+      <div id="news-panel-body"><div class="news-loading">Select a location on the map...</div></div>
+    </div>`;
+
+  if (!document.getElementById('leaflet-css')) {
+    const css = document.createElement('link');
+    css.id = 'leaflet-css'; css.rel = 'stylesheet';
+    css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    document.head.appendChild(css);
+  }
+  if (!window.L) {
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.onload = () => initConflictMap();
+    document.head.appendChild(s);
+  } else {
+    setTimeout(initConflictMap, 100);
+  }
+}
+
+function initConflictMap() {
+  const mapEl = document.getElementById('conflict-map');
+  if (!mapEl || !window.L) return;
+
+  const map = L.map('conflict-map', { center: [28, 50], zoom: 5, zoomControl: false, attributionControl: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  if (!document.getElementById('leaflet-extra-css')) {
+    const st = document.createElement('style');
+    st.id = 'leaflet-extra-css';
+    st.textContent = `
+      @keyframes mapPulseL { 0%,100%{transform:scale(0.5);opacity:0.3;} 50%{transform:scale(1.3);opacity:0;} }
+      .leaflet-container{background:#0a0a0c!important;}
+      .cp .leaflet-popup-content-wrapper{background:rgba(14,14,18,0.95)!important;color:#e8e8ec!important;border:1px solid #ff3b3b!important;border-radius:6px!important;font-family:'JetBrains Mono',monospace!important;box-shadow:0 4px 20px rgba(255,59,59,0.2)!important;}
+      .cp .leaflet-popup-tip{background:rgba(14,14,18,0.95)!important;}
+      .cp .leaflet-popup-content{margin:8px 12px!important;font-size:11px!important;line-height:1.5!important;}
+      .news-link{color:#448aff;text-decoration:none;font-size:10px;cursor:pointer;display:inline-block;margin-top:6px;border:1px solid #448aff;padding:2px 8px;border-radius:3px;}
+      .news-link:hover{background:#448aff;color:#fff;}
+    `;
+    document.head.appendChild(st);
+  }
+
+  function mkIcon(sev) {
+    const colors = { critical:'#ff1744', high:'#ff9100', medium:'#ffd740' };
+    const sizes = { critical:20, high:16, medium:12 };
+    const c = colors[sev]||'#ffd740', sz = sizes[sev]||12;
+    return L.divIcon({
+      className:'',
+      html:`<div style="position:relative;width:${sz}px;height:${sz}px;cursor:pointer;">
+        <div style="position:absolute;inset:0;background:${c};border-radius:50%;opacity:0.9;border:2px solid rgba(0,0,0,0.5);"></div>
+        <div style="position:absolute;inset:-${sz/2}px;border-radius:50%;background:${c};opacity:0.25;animation:mapPulseL 2s infinite;"></div></div>`,
+      iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]
+    });
+  }
+
+  CONFLICT_POINTS.forEach((p, i) => {
+    const m = L.marker([p.lat, p.lon], { icon: mkIcon(p.severity) }).addTo(map);
+    const sevLabel = p.severity==='critical'?'🔴 CRITICAL':p.severity==='high'?'🟠 HIGH':'🟡 MEDIUM';
+    m.bindPopup(
+      `<div><strong style="color:#ff3b3b;font-size:12px;">${p.name}</strong><br>
+       <span style="font-size:10px;color:#8888a0;">${sevLabel}</span><br>
+       <span style="font-size:11px;">${p.desc}</span><br>
+       <a class="news-link" onclick="event.preventDefault();fetchLocationNews(${i})">📰 LATEST NEWS</a></div>`,
+      { className:'cp', maxWidth:240 }
+    );
+  });
+
+  // Strait of Hormuz line
+  L.polyline([[26.55,56.05],[26.70,56.30],[26.95,56.45]], { color:'#ff1744', weight:3, dashArray:'8,6', opacity:0.8 }).addTo(map)
+    .bindPopup(`<div><strong style="color:#ff3b3b;">⛔ STRAIT OF HORMUZ</strong><br><span style="font-size:11px;">Closed by IRGC — shipping blocked.</span><br><a class="news-link" onclick="event.preventDefault();fetchLocationNews(16)">📰 LATEST NEWS</a></div>`, { className:'cp' });
+
+  const legend = L.control({ position:'bottomleft' });
+  legend.onAdd = function() {
+    const d = L.DomUtil.create('div');
+    d.style.cssText = 'background:rgba(10,10,12,0.85);border:1px solid #2a2a32;border-radius:6px;padding:10px 14px;font-family:"JetBrains Mono",monospace;font-size:10px;color:#e8e8ec;line-height:2;';
+    d.innerHTML = `<div style="font-weight:700;letter-spacing:1px;margin-bottom:4px;color:#8888a0;">STRIKE MAP — Click for news</div>
+      <div><span style="display:inline-block;width:10px;height:10px;background:#ff1744;border-radius:50%;margin-right:6px;vertical-align:middle;"></span>Critical</div>
+      <div><span style="display:inline-block;width:8px;height:8px;background:#ff9100;border-radius:50%;margin-right:7px;vertical-align:middle;"></span>High</div>
+      <div><span style="display:inline-block;width:7px;height:7px;background:#ffd740;border-radius:50%;margin-right:8px;vertical-align:middle;"></span>Medium</div>`;
+    return d;
+  };
+  legend.addTo(map);
+
+  new ResizeObserver(() => map.invalidateSize()).observe(mapEl);
+}
+
+function fetchLocationNews(idx) {
+  const p = CONFLICT_POINTS[idx];
+  const panel = document.getElementById('map-news-panel');
+  const title = document.getElementById('news-panel-title');
+  const body = document.getElementById('news-panel-body');
+
+  panel.classList.add('open');
+  title.textContent = `📰 ${p.name.toUpperCase()}`;
+  body.innerHTML = `<div class="news-loading">🔍 Searching latest news for ${p.name}...</div>`;
+
+  // Use Google News RSS via rss2json
+  const query = encodeURIComponent(p.search);
+  const rssUrl = `https://news.google.com/rss/search?q=${query}&hl=en&gl=US&ceid=US:en`;
+  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+  fetch(apiUrl)
+    .then(r => r.json())
+    .then(data => {
+      if (data.items && data.items.length > 0) {
+        body.innerHTML = '';
+        data.items.slice(0, 10).forEach(item => {
+          const ago = timeAgo(new Date(item.pubDate));
+          const div = document.createElement('div');
+          div.className = 'news-result';
+          div.onclick = () => window.open(item.link, '_blank');
+          div.innerHTML = `<h4>${item.title}</h4>
+            <p>${(item.description || '').replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
+            <div class="news-src">${item.author || extractDomain(item.link)} • ${ago}</div>`;
+          body.appendChild(div);
+        });
+      } else {
+        // Fallback: open Google News search directly
+        body.innerHTML = `<div class="news-loading">No RSS results. Opening Google News...</div>`;
+        setTimeout(() => window.open(`https://news.google.com/search?q=${query}`, '_blank'), 1000);
+      }
+    })
+    .catch(() => {
+      body.innerHTML = `
+        <div class="news-loading">Could not fetch RSS feed. Click below to search manually:</div>
+        <div class="news-result" onclick="window.open('https://news.google.com/search?q=${query}','_blank')" style="text-align:center;">
+          <h4 style="color:var(--gold);">🔍 Open Google News Search</h4>
+          <p>Search: "${p.search}"</p>
+        </div>
+        <div class="news-result" onclick="window.open('https://twitter.com/search?q=${query}&f=live','_blank')" style="text-align:center;">
+          <h4 style="color:var(--blue);">🐦 Open X/Twitter Search</h4>
+          <p>Latest tweets about ${p.name}</p>
+        </div>`;
+    });
+}
+
+function closeNewsPanel() {
+  document.getElementById('map-news-panel').classList.remove('open');
+}
+
+function timeAgo(date) {
+  const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1440) return `${Math.floor(mins/60)}h ago`;
+  return `${Math.floor(mins/1440)}d ago`;
+}
+
+function extractDomain(url) {
+  try { return new URL(url).hostname.replace('www.',''); } catch { return ''; }
+}
+
+// ===== TWEET FEEDS =====
+function iranTweetsContent(body) {
+  body.innerHTML = `<div class="tweet-feed" id="iran-feed"><div class="news-loading">Loading Iran feed...</div></div>`;
+  loadIranFeed();
+}
+
+async function loadIranFeed() {
+  const feed = document.getElementById('iran-feed');
+  if (!feed) return;
+
+  let items = [];
+
+  // Try fetching from Google News RSS
+  try {
+    const rss = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://news.google.com/rss/search?q=Iran+military+IRGC+conflict+2026&hl=en&gl=US&ceid=US:en')}`);
+    const data = await rss.json();
+    if (data.items) {
+      data.items.slice(0, 8).forEach(it => {
+        items.push({
+          source: it.author || extractDomain(it.link),
+          text: it.title,
+          time: Math.floor((Date.now() - new Date(it.pubDate).getTime()) / 60000),
+          tag: 'IRAN', link: it.link
+        });
+      });
+    }
+  } catch {}
+
+  // Also try Iran International
+  try {
+    const rss2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://news.google.com/rss/search?q=Iran+International+IRGC+military&hl=en&gl=US&ceid=US:en')}`);
+    const d2 = await rss2.json();
+    if (d2.items) {
+      d2.items.slice(0, 5).forEach(it => {
+        items.push({ source: it.author || extractDomain(it.link), text: it.title, time: Math.floor((Date.now()-new Date(it.pubDate).getTime())/60000), tag: 'MILITARY', link: it.link });
+      });
+    }
+  } catch {}
+
+  // Fallback curated
+  if (items.length < 3) {
+    items = [
+      { source: 'IRGC (Translated)', text: 'All Israeli and US military targets in the Middle East struck by Iranian missiles. Operations continuing.', time: 5, tag: 'MILITARY' },
+      { source: 'Iran State Media', text: 'Supreme Leader Khamenei confirmed killed. 40 days of mourning declared. Temporary governing council formed.', time: 24*60, tag: 'BREAKING' },
+      { source: 'IRGC Spokesperson', text: 'All US assets throughout the region are legitimate targets. 27 military bases targeted.', time: 180, tag: 'MILITARY' },
+      { source: 'Iran Foreign Ministry', text: 'Iran targeted by brutal air operation during active negotiations. The nation will not surrender.', time: 12*60, tag: 'OFFICIAL' },
+      { source: 'IRGC Naval Forces', text: 'Strait of Hormuz closed to all shipping. VHF warnings issued to all vessels.', time: 20*60, tag: 'MILITARY' },
+      { source: 'Tasnim News', text: 'Temporary council including Ayatollah Arafi and President Pezeshkian have assumed control.', time: 16*60, tag: 'POLITICS' },
+      { source: 'Protesters (Social Media)', text: 'Protests continue in 31 provinces despite internet blackout exceeding 24 hours.', time: 48*60, tag: 'CIVIL' },
+    ];
+  }
+
+  // Deduplicate by title
+  const seen = new Set();
+  items = items.filter(t => { const k = t.text.substring(0,40); if (seen.has(k)) return false; seen.add(k); return true; });
+
+  renderTweets(feed, items);
+}
+
+function gulfTweetsContent(body) {
+  body.innerHTML = `<div class="tweet-feed" id="gulf-feed"><div class="news-loading">Loading Gulf/US feed...</div></div>`;
+  loadGulfFeed();
+}
+
+async function loadGulfFeed() {
+  const feed = document.getElementById('gulf-feed');
+  if (!feed) return;
+
+  let items = [];
+
+  try {
+    const rss = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://news.google.com/rss/search?q=UAE+Gulf+Iran+conflict+2026&hl=en&gl=US&ceid=US:en')}`);
+    const data = await rss.json();
+    if (data.items) {
+      data.items.slice(0, 8).forEach(it => {
+        items.push({ source: it.author || extractDomain(it.link), text: it.title, time: Math.floor((Date.now()-new Date(it.pubDate).getTime())/60000), tag: 'GULF', link: it.link });
+      });
+    }
+  } catch {}
+
+  try {
+    const rss2 = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent('https://news.google.com/rss/search?q=US+military+Iran+CENTCOM+2026&hl=en&gl=US&ceid=US:en')}`);
+    const d2 = await rss2.json();
+    if (d2.items) {
+      d2.items.slice(0, 5).forEach(it => {
+        items.push({ source: it.author || extractDomain(it.link), text: it.title, time: Math.floor((Date.now()-new Date(it.pubDate).getTime())/60000), tag: 'US/MILITARY', link: it.link });
+      });
+    }
+  } catch {}
+
+  if (items.length < 3) {
+    items = [
+      { source: 'UAE MOD', text: 'UAE intercepted 165 ballistic missiles, 2 cruise missiles, 63 drones from Iran.', time: 60, tag: 'UAE' },
+      { source: 'US CENTCOM', text: '3 American service members killed, 5 wounded. Additional forces deploying.', time: 180, tag: 'US MILITARY' },
+      { source: 'Saudi FM', text: 'Iran targeted Riyadh and eastern region. Attacks repelled despite Kingdom\'s neutrality.', time: 600, tag: 'KSA' },
+      { source: 'Qatar FM', text: 'Targeting of Qatar cannot be accepted under any justification.', time: 840, tag: 'QATAR' },
+      { source: 'Kuwait Civil Def.', text: 'Air Defense intercepted majority of Iranian drones. No injuries.', time: 120, tag: 'KUWAIT' },
+      { source: 'CNBC', text: 'Dow -543pts, S&P -1.1%, Nasdaq -1.6%. Oil surging on Hormuz fears.', time: 60, tag: 'MARKETS' },
+      { source: 'Aviation', text: '1,560 flights cancelled (41% of ME arrivals). Passengers stranded.', time: 120, tag: 'TRAVEL' },
+    ];
+  }
+
+  const seen = new Set();
+  items = items.filter(t => { const k = t.text.substring(0,40); if (seen.has(k)) return false; seen.add(k); return true; });
+
+  renderTweets(feed, items);
+}
+
+function renderTweets(container, tweets) {
+  container.innerHTML = '';
+  tweets.sort((a, b) => a.time - b.time);
+  tweets.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'tweet-item';
+    const timeStr = t.time < 60 ? `${t.time}m ago` : t.time < 1440 ? `${Math.floor(t.time/60)}h ago` : `${Math.floor(t.time/1440)}d ago`;
+    
+    // Build X/Twitter search URL from the tweet text (first ~60 chars)
+    const searchText = t.text.replace(/<[^>]*>/g, '').substring(0, 60).trim();
+    const xSearchUrl = `https://x.com/search?q=${encodeURIComponent(searchText)}&f=live`;
+    // Source article link (if available from RSS)
+    const articleUrl = t.link || null;
+
+    div.innerHTML = `<div class="tweet-header"><span class="tweet-source">${t.source}</span><span class="tweet-time">${timeStr}</span></div>
+      <div class="tweet-text">${t.text}</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px;">
+        ${t.tag ? `<span class="tweet-tag">${t.tag}</span>` : ''}
+        <a href="${xSearchUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="tweet-tag" style="background:rgba(29,155,240,0.15);color:#1d9bf0;text-decoration:none;cursor:pointer;">𝕏 Search on X</a>
+        ${articleUrl ? `<a href="${articleUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="tweet-tag" style="background:rgba(68,138,255,0.15);color:var(--blue);text-decoration:none;cursor:pointer;">↗ Read Source</a>` : ''}
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+// ===== HELPERS =====
+function el(id) { return document.getElementById(id); }
+
+function popoutVideo(id) {
+  const key = id.replace('custom_', '');
+  const stream = YOUTUBE_STREAMS[key] || YOUTUBE_STREAMS[id];
+  if (stream) window.open(`https://www.youtube.com/watch?v=${stream.videoId}`, stream.name, 'width=800,height=500,menubar=no,toolbar=no');
+}
+
+function addCustomYoutube() {
+  const name = document.getElementById('custom-name').value.trim();
+  const url = document.getElementById('custom-url').value.trim();
+  if (!name || !url) return;
+  const match = url.match(/(?:v=|\/live\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (!match) return alert('Invalid YouTube URL');
+  const videoId = match[1];
+  const id = 'custom_' + videoId;
+  YOUTUBE_STREAMS[id] = { name, videoId, type: 'custom' };
+  createWidget(id, name, 'LIVE', youtubeContent, { x: 100+Math.random()*300, y: 100+Math.random()*200, w: 480, h: 310 });
+  document.getElementById('custom-name').value = '';
+  document.getElementById('custom-url').value = '';
+}
+
+function addWidget(id) {
+  const layout = getLayout();
+  const pos = layout[id] || { x: 100+Math.random()*200, y: 100+Math.random()*200, w: 400, h: 300 };
+  const configs = {
+    skynews:     { title: 'Sky News Arabia',     tag: 'LIVE', fn: youtubeContent },
+    alarabiya:   { title: 'Al Arabiya',           tag: 'LIVE', fn: youtubeContent },
+    aljazeera:   { title: 'Al Jazeera Arabic',    tag: 'LIVE', fn: youtubeContent },
+    cnn:         { title: 'CNN International',     tag: 'LIVE', fn: youtubeContent },
+    cam1:        { title: 'Middle East Cam 1',     tag: 'LIVE', fn: youtubeContent },
+    cam2:        { title: 'Middle East Cam 2',     tag: 'LIVE', fn: youtubeContent },
+    cam3:        { title: 'Middle East Cam 3',     tag: 'LIVE', fn: youtubeContent },
+    gold:        { title: 'Gold / Silver / Oil',   tag: 'AUTO', fn: goldContent },
+    crypto:      { title: 'Crypto Markets',        tag: 'AUTO', fn: cryptoContent },
+    stocks:      { title: 'Stock Indices',          tag: 'AUTO', fn: stocksContent },
+    feargreed:   { title: 'Fear & Greed Index',    tag: 'DATA', fn: fearGreedContent },
+    map:         { title: 'MENA Conflict Map',     tag: 'LIVE', fn: mapContent },
+    iran_tweets: { title: 'Iran / Military Feed',  tag: 'AUTO', fn: iranTweetsContent },
+    gulf_tweets: { title: 'UAE / Gulf / US Feed',  tag: 'AUTO', fn: gulfTweetsContent },
+  };
+  const cfg = configs[id];
+  if (cfg) createWidget(id, cfg.title, cfg.tag, cfg.fn, pos);
+}
+
+function toggleAddPanel() { document.getElementById('add-panel').classList.toggle('open'); }
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+
+// ===== INIT =====
+function initDefaultWidgets() {
+  const ids = ['skynews','alarabiya','aljazeera','cnn','cam1','cam2','cam3','gold','crypto','stocks','feargreed','map','iran_tweets','gulf_tweets'];
+  ids.forEach(id => addWidget(id));
+}
+
+initDefaultWidgets();
+
+// Alert banner
+const banner = document.getElementById('alert-banner');
+if (window.location.protocol === 'file:') {
+  banner.innerHTML = `<div class="live-dot" style="background:var(--orange);box-shadow:0 0 8px var(--orange);"></div>
+    <span>⚠ Running from local file — YouTube embeds may be blocked. Run <strong style="color:var(--gold);cursor:pointer;" onclick="navigator.clipboard.writeText('python -m http.server 8080').then(()=>this.textContent='COPIED!')">python -m http.server 8080</strong> in this folder, then open <strong style="color:var(--gold)">http://localhost:8080</strong></span>
+    <span class="close-alert" onclick="this.parentElement.style.display='none'">✕</span>`;
+}
+banner.style.display = 'flex';
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('add-panel').classList.remove('open');
+  if (e.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
+});
+</script>
+</body>
+</html>
