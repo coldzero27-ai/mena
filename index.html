@@ -411,6 +411,7 @@
   <div class="add-item" onclick="addWidget('iran_tweets')" id="add-iran_tweets"><div class="icon">🇮🇷</div><div class="info"><h4>Iran / Military Feed</h4><p>Translated updates</p></div></div>
   <div class="add-item" onclick="addWidget('gulf_tweets')" id="add-gulf_tweets"><div class="icon">🌍</div><div class="info"><h4>UAE / Gulf / US Feed</h4><p>Regional updates</p></div></div>
   <div class="add-item" onclick="addWidget('semi_news')" id="add-semi_news"><div class="icon">🔲</div><div class="info"><h4>Semiconductor News</h4><p>GPU, NVIDIA, AMD, TSMC, AI chips</p></div></div>
+  <div class="add-item" onclick="addWidget('marine')" id="add-marine"><div class="icon">🚢</div><div class="info"><h4>Sea Traffic — Gulf/Hormuz</h4><p>Live ship tracking AIS map</p></div></div>
 
   <div class="custom-input-group">
     <h3>Custom YouTube Stream</h3>
@@ -426,12 +427,12 @@ const YOUTUBE_STREAMS = {
   skynews:      { name: 'Sky News Arabia',     videoId: 'U--OjmpjF5o', type: 'tv' },
   alarabiya:    { name: 'Al Arabiya',          videoId: 'n7eQejkXbnM', type: 'tv' },
   aljazeera:    { name: 'Al Jazeera Arabic',   videoId: 'bNyUyrR0PHo', type: 'tv' },
-  aljazeera_en: { name: 'Al Jazeera English',  channelId: 'UCNye-wNBqNL5ZzHSJj3l8Bg', type: 'tv' },
-  skynews_en:   { name: 'Sky News English',    channelId: 'UCoMdktPbSTixAyNGwb-UYkQ', type: 'tv' },
-  france24:     { name: 'France 24 English',   channelId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg', type: 'tv' },
-  dwnews:       { name: 'DW News English',     channelId: 'UCknLrEdhRCp1aegoMqRaCZg', type: 'tv' },
-  nbcnews:      { name: 'NBC News NOW',        channelId: 'UCeY0bbntWzzVIaj2z3QigXg', type: 'tv' },
-  wion:         { name: 'WION',                channelId: 'UC_gUM8rL-Lrg6O3adPW9K1g', type: 'tv' },
+  aljazeera_en: { name: 'Al Jazeera English',  videoId: 'gGHmmu0trZU', type: 'tv' },
+  skynews_en:   { name: 'Sky News English',    videoId: '9Auq9mYxFEE', type: 'tv' },
+  france24:     { name: 'France 24 English',   videoId: 'h3MuIUNCCzI', type: 'tv' },
+  dwnews:       { name: 'DW News English',     videoId: 'V1EOUBKGQJY', type: 'tv' },
+  nbcnews:      { name: 'NBC News NOW',        videoId: 'Nh3Nf_3yVwI', type: 'tv' },
+  wion:         { name: 'WION',                videoId: 'UDBxS5lHzmo', type: 'tv' },
   cam1:         { name: 'Middle East Cam 1',   videoId: '4E-iFtUM2kk', type: 'cam' },
   cam2:         { name: 'Middle East Cam 2',   videoId: '-zGuR1qVKrU', type: 'cam' },
   cam3:         { name: 'Middle East Cam 3',   videoId: 'gmtlJ_m2r5A', type: 'cam' },
@@ -497,11 +498,12 @@ const DEFAULT_LAYOUT = {
   iran_tweets:  { x: 680, y: 820, w: 380, h: 400 },
   gulf_tweets:  { x: 1070,y: 820, w: 380, h: 400 },
   semi_news:    { x: 1460,y: 820, w: 380, h: 400 },
+  marine:       { x: 10,  y: 1230,w: 660, h: 400 },
 };
 
 function getLayout() {
   try {
-    const s = localStorage.getItem('mena_monitor_layout_v4');
+    const s = localStorage.getItem('mena_monitor_layout_v5');
     return s ? JSON.parse(s) : { ...DEFAULT_LAYOUT };
   } catch { return { ...DEFAULT_LAYOUT }; }
 }
@@ -512,11 +514,11 @@ function saveLayout() {
     const el = widgets[id].element;
     layout[id] = { x: parseInt(el.style.left), y: parseInt(el.style.top), w: parseInt(el.style.width), h: parseInt(el.style.height) };
   });
-  try { localStorage.setItem('mena_monitor_layout_v4', JSON.stringify(layout)); } catch {}
+  try { localStorage.setItem('mena_monitor_layout_v5', JSON.stringify(layout)); } catch {}
 }
 
 function resetLayout() {
-  localStorage.removeItem('mena_monitor_layout_v4');
+  localStorage.removeItem('mena_monitor_layout_v5');
   document.getElementById('grid-container').innerHTML = '';
   widgets = {};
   initDefaultWidgets();
@@ -618,16 +620,13 @@ function youtubeContent(body, id) {
   const key = id.replace('custom_', '');
   const stream = YOUTUBE_STREAMS[key] || YOUTUBE_STREAMS[id];
   if (!stream) return;
-  let src;
-  if (stream.videoId) {
-    src = `https://www.youtube.com/embed/${stream.videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`;
-  } else if (stream.channelId) {
-    src = `https://www.youtube.com/embed/live_stream?channel=${stream.channelId}&autoplay=1&mute=1`;
+  const vid = stream.videoId;
+  if (vid) {
+    body.innerHTML = `<iframe src="https://www.youtube.com/embed/${vid}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
+      style="width:100%;height:100%;border:none;"></iframe>`;
   }
-  body.innerHTML = `<iframe src="${src}"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
-    style="width:100%;height:100%;border:none;"></iframe>`;
 }
 
 // ===== GOLD / SILVER / OIL =====
@@ -645,87 +644,53 @@ function goldContent(body) {
 
 async function fetchGold() {
   const ts = () => new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Dubai' });
-  let goldOk = false, silverOk = false, oilOk = false;
 
-  // === GOLD & SILVER via metals.live ===
-  try {
-    const r = await fetch('https://api.metals.live/v1/spot');
-    const d = await r.json();
-    if (d && d.length) {
-      const gObj = d.find(m => m.gold);
-      const sObj = d.find(m => m.silver);
-      if (gObj && gObj.gold) { el('gold-price').innerHTML = `$${parseFloat(gObj.gold).toLocaleString(undefined,{minimumFractionDigits:2})} <span style="font-size:10px;color:var(--text-dim)">/oz</span>`; goldOk = true; }
-      if (sObj && sObj.silver) { el('silver-price').innerHTML = `$${parseFloat(sObj.silver).toFixed(2)} <span style="font-size:10px;color:var(--text-dim)">/oz</span>`; silverOk = true; }
-    }
-  } catch {}
+  // Use Yahoo Finance for all three: GC=F (gold), SI=F (silver), CL=F (oil)
+  const commodities = [
+    { sym: 'GC=F', id: 'gold-price', suffix: '/oz', noPrefix: false },
+    { sym: 'SI=F', id: 'silver-price', suffix: '/oz', noPrefix: false },
+    { sym: 'CL=F', id: 'oil-price', suffix: '/bbl', noPrefix: false },
+  ];
 
-  // Fallback gold/silver via CoinGecko tether-gold
-  if (!goldOk) {
-    try {
-      const r2 = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether-gold&vs_currencies=usd&include_24hr_change=true');
-      const d2 = await r2.json();
-      if (d2['tether-gold']) {
-        const p = d2['tether-gold'].usd, c = d2['tether-gold'].usd_24h_change || 0;
-        el('gold-price').innerHTML = `$${p.toLocaleString(undefined,{minimumFractionDigits:2})} <span class="market-change ${c>=0?'change-up':'change-down'}">${c>=0?'▲':'▼'}${Math.abs(c).toFixed(2)}%</span>`;
-        goldOk = true;
-      }
-    } catch {}
-  }
-
-  // === CRUDE OIL via Yahoo Finance through AllOrigins proxy ===
-  try {
-    const yahooUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=1d';
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
-    const r = await fetch(proxyUrl);
-    const d = await r.json();
-    const meta = d.chart?.result?.[0]?.meta;
-    if (meta && meta.regularMarketPrice) {
-      const price = meta.regularMarketPrice;
-      const prev = meta.chartPreviousClose || meta.previousClose;
-      const change = prev ? ((price - prev) / prev * 100) : 0;
-      el('oil-price').innerHTML = `$${price.toFixed(2)} <span class="market-change ${change>=0?'change-up':'change-down'}">${change>=0?'▲':'▼'}${Math.abs(change).toFixed(2)}%</span> <span style="font-size:10px;color:var(--text-dim)">/bbl</span>`;
-      oilOk = true;
-    }
-  } catch {}
-
-  // Oil fallback 2: via corsproxy
-  if (!oilOk) {
-    try {
-      const r = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/CL=F?interval=1d&range=1d')}`);
-      const d = await r.json();
-      const meta = d.chart?.result?.[0]?.meta;
-      if (meta && meta.regularMarketPrice) {
-        const price = meta.regularMarketPrice;
-        const prev = meta.chartPreviousClose || meta.previousClose;
-        const change = prev ? ((price - prev) / prev * 100) : 0;
-        el('oil-price').innerHTML = `$${price.toFixed(2)} <span class="market-change ${change>=0?'change-up':'change-down'}">${change>=0?'▲':'▼'}${Math.abs(change).toFixed(2)}%</span> <span style="font-size:10px;color:var(--text-dim)">/bbl</span>`;
-        oilOk = true;
-      }
-    } catch {}
-  }
-
-  // Oil fallback 3: embedded TradingView mini widget (shows actual chart inside the card)
-  if (!oilOk) {
-    const oilEl = el('oil-price');
-    if (oilEl) {
-      oilEl.innerHTML = `<span style="color:var(--orange);font-size:12px;">⏳ Retrying...</span>`;
-      // Try one more with different proxy
+  for (const c of commodities) {
+    let ok = false;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${c.sym}?interval=1d&range=1d`;
+    const proxies = [url, `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, `https://corsproxy.io/?${encodeURIComponent(url)}`];
+    
+    for (const pUrl of proxies) {
+      if (ok) break;
       try {
-        const r = await fetch('https://api.metals.live/v1/spot/oil');
+        const r = await fetch(pUrl);
         const d = await r.json();
-        if (d && d.length && d[0].oil) {
-          oilEl.innerHTML = `$${parseFloat(d[0].oil).toFixed(2)} <span style="font-size:10px;color:var(--text-dim)">/bbl</span>`;
-          oilOk = true;
+        const meta = d.chart?.result?.[0]?.meta;
+        if (meta?.regularMarketPrice) {
+          const price = meta.regularMarketPrice;
+          const prev = meta.chartPreviousClose || meta.previousClose;
+          const change = prev ? ((price - prev) / prev * 100) : 0;
+          const e = el(c.id);
+          if (e) e.innerHTML = `$${price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} <span class="market-change ${change>=0?'change-up':'change-down'}">${change>=0?'▲':'▼'}${Math.abs(change).toFixed(2)}%</span> <span style="font-size:10px;color:var(--text-dim)">${c.suffix}</span>`;
+          ok = true;
         }
       } catch {}
-      if (!oilOk) {
-        oilEl.innerHTML = `<span style="color:var(--orange);font-size:12px;">API unavailable — hit ↻</span>`;
-      }
+    }
+
+    // Fallback for gold only: try metals.live
+    if (!ok && c.sym === 'GC=F') {
+      try {
+        const r = await fetch('https://api.metals.live/v1/spot');
+        const d = await r.json();
+        const gObj = d?.find(m => m.gold);
+        if (gObj?.gold) { el(c.id).innerHTML = `$${parseFloat(gObj.gold).toLocaleString(undefined,{minimumFractionDigits:2})} <span style="font-size:10px;color:var(--text-dim)">/oz</span>`; ok = true; }
+        const sObj = d?.find(m => m.silver);
+        if (sObj?.silver) { el('silver-price').innerHTML = `$${parseFloat(sObj.silver).toFixed(2)} <span style="font-size:10px;color:var(--text-dim)">/oz</span>`; }
+      } catch {}
+    }
+
+    if (!ok) {
+      const e = el(c.id);
+      if (e) e.innerHTML = `<span style="color:var(--orange);font-size:11px;">Hit ↻ to retry</span>`;
     }
   }
-
-  if (!goldOk) el('gold-price').innerHTML = `<span style="color:var(--orange);font-size:12px;">Hit ↻ to retry</span>`;
-  if (!silverOk) el('silver-price').innerHTML = `<span style="color:var(--orange);font-size:12px;">Hit ↻ to retry</span>`;
 
   const u = el('gold-update');
   if (u) u.textContent = `Last update: ${ts()} GST`;
@@ -1197,6 +1162,19 @@ function renderTweets(container, tweets) {
   });
 }
 
+// ===== MARINE TRAFFIC =====
+function marineContent(body) {
+  // Use MarineTraffic embed centered on Strait of Hormuz / Persian Gulf
+  // lat: 26.50, lon: 56.30 for Hormuz; wider view: lat 25.5, lon 53.5, zoom 6
+  body.innerHTML = `<div id="marine-map-container" style="width:100%;height:100%;position:relative;">
+    <iframe 
+      src="https://www.marinetraffic.com/en/ais/embed/zoom:6/centery:25.5/centerx:54.0/maptype:4/shownames:false/mmsi:0/shipid:0/fleet:/fleet_id:/vtypes:/showmenu:true/remember:false"
+      style="width:100%;height:100%;border:none;"
+      loading="lazy"
+    ></iframe>
+  </div>`;
+}
+
 // ===== SEMICONDUCTOR NEWS FEED =====
 function semiNewsContent(body) {
   body.innerHTML = `<div class="tweet-feed" id="semi-feed"><div class="news-loading">Loading semiconductor news...</div></div>`;
@@ -1260,11 +1238,8 @@ function el(id) { return document.getElementById(id); }
 function popoutVideo(id) {
   const key = id.replace('custom_', '');
   const stream = YOUTUBE_STREAMS[key] || YOUTUBE_STREAMS[id];
-  if (stream) {
-    const url = stream.videoId 
-      ? `https://www.youtube.com/watch?v=${stream.videoId}` 
-      : `https://www.youtube.com/channel/${stream.channelId}/live`;
-    window.open(url, stream.name, 'width=800,height=500,menubar=no,toolbar=no');
+  if (stream && stream.videoId) {
+    window.open(`https://www.youtube.com/watch?v=${stream.videoId}`, stream.name, 'width=800,height=500,menubar=no,toolbar=no');
   }
 }
 
@@ -1307,6 +1282,7 @@ function addWidget(id) {
     iran_tweets:  { title: 'Iran / Military Feed', tag: 'AUTO', fn: iranTweetsContent },
     gulf_tweets:  { title: 'UAE / Gulf / US Feed', tag: 'AUTO', fn: gulfTweetsContent },
     semi_news:    { title: 'Semiconductor News',  tag: 'AUTO', fn: semiNewsContent },
+    marine:       { title: 'Sea Traffic — Hormuz/Gulf', tag: 'LIVE', fn: marineContent },
   };
   const cfg = configs[id];
   if (cfg) createWidget(id, cfg.title, cfg.tag, cfg.fn, pos);
@@ -1320,7 +1296,7 @@ function toggleFullscreen() {
 
 // ===== INIT =====
 function initDefaultWidgets() {
-  const ids = ['skynews','alarabiya','aljazeera','aljazeera_en','skynews_en','france24','dwnews','nbcnews','wion','cam1','cam2','cam3','gold','crypto','stocks','gpu_semi','feargreed','map','iran_tweets','gulf_tweets','semi_news'];
+  const ids = ['skynews','alarabiya','aljazeera','aljazeera_en','skynews_en','france24','dwnews','nbcnews','wion','cam1','cam2','cam3','gold','crypto','stocks','gpu_semi','feargreed','map','iran_tweets','gulf_tweets','semi_news','marine'];
   ids.forEach(id => addWidget(id));
 }
 
