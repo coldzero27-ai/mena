@@ -394,6 +394,11 @@
   <div class="add-item" onclick="addWidget('nbcnews')" id="add-nbcnews"><div class="icon">📺</div><div class="info"><h4>NBC News NOW</h4><p>24/7 YouTube live</p></div></div>
   <div class="add-item" onclick="addWidget('wion')" id="add-wion"><div class="icon">📺</div><div class="info"><h4>WION</h4><p>24/7 YouTube live</p></div></div>
 
+  <h3 style="margin-top:16px;">🇺🇸 US Channels</h3>
+  <div class="add-item" onclick="addWidget('abcnews')" id="add-abcnews"><div class="icon">📺</div><div class="info"><h4>ABC News Live</h4><p>24/7 free stream</p></div></div>
+  <div class="add-item" onclick="addWidget('cbsnews')" id="add-cbsnews"><div class="icon">📺</div><div class="info"><h4>CBS News 24/7</h4><p>24/7 free stream</p></div></div>
+  <div class="add-item" onclick="addWidget('foxlive')" id="add-foxlive"><div class="icon">📺</div><div class="info"><h4>LiveNOW from FOX</h4><p>24/7 free stream</p></div></div>
+
   <h3 style="margin-top:16px;">📹 Live Cameras</h3>
   <div class="add-item" onclick="addWidget('cam1')" id="add-cam1"><div class="icon">📹</div><div class="info"><h4>Middle East Cam 1</h4><p>Live camera feed</p></div></div>
   <div class="add-item" onclick="addWidget('cam2')" id="add-cam2"><div class="icon">📹</div><div class="info"><h4>Middle East Cam 2</h4><p>Live camera feed</p></div></div>
@@ -428,14 +433,17 @@ const YOUTUBE_STREAMS = {
   alarabiya:    { name: 'Al Arabiya',          videoId: 'n7eQejkXbnM', type: 'tv' },
   aljazeera:    { name: 'Al Jazeera Arabic',   videoId: 'bNyUyrR0PHo', type: 'tv' },
   aljazeera_en: { name: 'Al Jazeera English',  videoId: 'gGHmmu0trZU', type: 'tv' },
-  skynews_en:   { name: 'Sky News English',    videoId: '8SoZ-93WO4I', type: 'tv' },
+  skynews_en:   { name: 'Sky News English',    videoId: '9Auq9mYxFEE', type: 'tv' },
   france24:     { name: 'France 24 English',   videoId: 'h3MuIUNCCzI', type: 'tv' },
   dwnews:       { name: 'DW News English',     videoId: 'V1EOUBKGQJY', type: 'tv' },
-  nbcnews:      { name: 'NBC News NOW',        videoId: 'HG_nbD_NCS0', type: 'tv' },
-  wion:         { name: 'WION',                videoId: 'L6-iWXP3YF8', type: 'tv' },
+  nbcnews:      { name: 'NBC News NOW',        videoId: 'Nh3Nf_3yVwI', type: 'tv' },
+  wion:         { name: 'WION',                videoId: 'UDBxS5lHzmo', type: 'tv' },
   cam1:         { name: 'Middle East Cam 1',   videoId: '4E-iFtUM2kk', type: 'cam' },
   cam2:         { name: 'Middle East Cam 2',   videoId: '-zGuR1qVKrU', type: 'cam' },
   cam3:         { name: 'Middle East Cam 3',   videoId: 'gmtlJ_m2r5A', type: 'cam' },
+  abcnews:      { name: 'ABC News Live',       videoId: 'YBBQx1aHBOA', type: 'tv' },
+  cbsnews:      { name: 'CBS News 24/7',        videoId: 'pMbh0GFhmJg', type: 'tv' },
+  foxlive:      { name: 'LiveNOW from FOX',     videoId: 'MMmOLN5zBLY', type: 'tv' },
 };
 
 const CONFLICT_POINTS = [
@@ -503,7 +511,7 @@ const DEFAULT_LAYOUT = {
 
 function getLayout() {
   try {
-    const s = localStorage.getItem('mena_monitor_layout_v5');
+    const s = localStorage.getItem('mena_monitor_layout_v6');
     return s ? JSON.parse(s) : { ...DEFAULT_LAYOUT };
   } catch { return { ...DEFAULT_LAYOUT }; }
 }
@@ -514,11 +522,11 @@ function saveLayout() {
     const el = widgets[id].element;
     layout[id] = { x: parseInt(el.style.left), y: parseInt(el.style.top), w: parseInt(el.style.width), h: parseInt(el.style.height) };
   });
-  try { localStorage.setItem('mena_monitor_layout_v5', JSON.stringify(layout)); } catch {}
+  try { localStorage.setItem('mena_monitor_layout_v6', JSON.stringify(layout)); } catch {}
 }
 
 function resetLayout() {
-  localStorage.removeItem('mena_monitor_layout_v5');
+  localStorage.removeItem('mena_monitor_layout_v6');
   document.getElementById('grid-container').innerHTML = '';
   widgets = {};
   initDefaultWidgets();
@@ -619,14 +627,19 @@ document.addEventListener('mouseup', () => {
 function youtubeContent(body, id) {
   const key = id.replace('custom_', '');
   const stream = YOUTUBE_STREAMS[key] || YOUTUBE_STREAMS[id];
-  if (!stream) return;
+  if (!stream || !stream.videoId) return;
   const vid = stream.videoId;
-  if (vid) {
-    body.innerHTML = `<iframe src="https://www.youtube.com/embed/${vid}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
-      style="width:100%;height:100%;border:none;"></iframe>`;
-  }
+  // YouTube policy: only 1 autoplay allowed per page. Show thumbnail + click to play.
+  body.innerHTML = `
+    <div style="width:100%;height:100%;position:relative;cursor:pointer;background:#000;" onclick="this.innerHTML='<iframe src=\\'https://www.youtube.com/embed/${vid}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1\\' allow=\\'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share\\' referrerpolicy=\\'strict-origin-when-cross-origin\\' allowfullscreen style=\\'width:100%;height:100%;border:none;\\'></iframe>'">
+      <img src="https://img.youtube.com/vi/${vid}/hqdefault.jpg" style="width:100%;height:100%;object-fit:cover;opacity:0.7;" onerror="this.style.display='none'"/>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+        <div style="width:60px;height:42px;background:rgba(255,59,59,0.9);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <div style="width:0;height:0;border-left:18px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:4px;"></div>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:8px;left:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#fff;background:rgba(0,0,0,0.7);padding:2px 8px;border-radius:3px;">${stream.name} — Click to play</div>
+    </div>`;
 }
 
 // ===== GOLD / SILVER / OIL =====
@@ -787,6 +800,8 @@ function gpuSemiContent(body) {
       <div class="market-card" style="border-color:#333;"><div class="market-left"><span class="market-icon" style="font-size:12px;">⬛</span><span class="market-name" style="font-size:10px;">H100 80GB</span></div><div class="market-right"><span class="market-price" style="font-size:12px;">$25-40K <span style="font-size:9px;color:var(--text-dim)">buy</span> · $1.50-5/hr <span style="font-size:9px;color:var(--text-dim)">rent</span></span></div></div>
       <div class="market-card" style="border-color:#333;"><div class="market-left"><span class="market-icon" style="font-size:12px;">⬛</span><span class="market-name" style="font-size:10px;">H200 141GB</span></div><div class="market-right"><span class="market-price" style="font-size:12px;">$30-40K <span style="font-size:9px;color:var(--text-dim)">buy</span> · $2.50-10/hr <span style="font-size:9px;color:var(--text-dim)">rent</span></span></div></div>
       <div class="market-card" style="border-color:#333;"><div class="market-left"><span class="market-icon" style="font-size:12px;">⬛</span><span class="market-name" style="font-size:10px;">B200 Blackwell</span></div><div class="market-right"><span class="market-price" style="font-size:12px;">$30-50K <span style="font-size:9px;color:var(--text-dim)">est.</span></span></div></div>
+      <div class="market-card" style="border-color:#333;"><div class="market-left"><span class="market-icon" style="font-size:12px;">🔴</span><span class="market-name" style="font-size:10px;">MI300X 192GB</span></div><div class="market-right"><span class="market-price" style="font-size:12px;">$10-15K <span style="font-size:9px;color:var(--text-dim)">buy</span> · $2-6/hr <span style="font-size:9px;color:var(--text-dim)">rent</span></span></div></div>
+      <div class="market-card" style="border-color:#333;"><div class="market-left"><span class="market-icon" style="font-size:12px;">🔴</span><span class="market-name" style="font-size:10px;">MI355X 288GB</span></div><div class="market-right"><span class="market-price" style="font-size:12px;">$20-30K <span style="font-size:9px;color:var(--text-dim)">est.</span></span></div></div>
     </div>
     <div class="update-time" id="gpu-update">Fetching...</div>`;
   fetchGpuStocks();
@@ -1273,6 +1288,9 @@ function addWidget(id) {
     cam1:         { title: 'Middle East Cam 1',    tag: 'LIVE', fn: youtubeContent },
     cam2:         { title: 'Middle East Cam 2',    tag: 'LIVE', fn: youtubeContent },
     cam3:         { title: 'Middle East Cam 3',    tag: 'LIVE', fn: youtubeContent },
+    abcnews:      { title: 'ABC News Live',       tag: 'LIVE', fn: youtubeContent },
+    cbsnews:      { title: 'CBS News 24/7',        tag: 'LIVE', fn: youtubeContent },
+    foxlive:      { title: 'LiveNOW from FOX',     tag: 'LIVE', fn: youtubeContent },
     gold:         { title: 'Gold / Silver / Oil',  tag: 'AUTO', fn: goldContent },
     crypto:       { title: 'Crypto Markets',       tag: 'AUTO', fn: cryptoContent },
     stocks:       { title: 'Stock Indices',        tag: 'AUTO', fn: stocksContent },
@@ -1296,7 +1314,7 @@ function toggleFullscreen() {
 
 // ===== INIT =====
 function initDefaultWidgets() {
-  const ids = ['skynews','alarabiya','aljazeera','aljazeera_en','skynews_en','france24','dwnews','nbcnews','wion','cam1','cam2','cam3','gold','crypto','stocks','gpu_semi','feargreed','map','iran_tweets','gulf_tweets','semi_news','marine'];
+  const ids = ['skynews','alarabiya','aljazeera','aljazeera_en','skynews_en','nbcnews','cam1','cam2','cam3','gold','crypto','stocks','gpu_semi','feargreed','map','iran_tweets','gulf_tweets','semi_news','marine'];
   ids.forEach(id => addWidget(id));
 }
 
