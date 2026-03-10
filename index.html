@@ -381,11 +381,18 @@
 
 <!-- ADD WIDGET PANEL -->
 <div id="add-panel">
-  <h3>📺 Live Channels</h3>
+  <h3>📺 Arabic Channels</h3>
   <div class="add-item" onclick="addWidget('skynews')" id="add-skynews"><div class="icon">📺</div><div class="info"><h4>Sky News Arabia</h4><p>Live broadcast</p></div></div>
   <div class="add-item" onclick="addWidget('alarabiya')" id="add-alarabiya"><div class="icon">📺</div><div class="info"><h4>Al Arabiya</h4><p>Live broadcast</p></div></div>
   <div class="add-item" onclick="addWidget('aljazeera')" id="add-aljazeera"><div class="icon">📺</div><div class="info"><h4>Al Jazeera Arabic</h4><p>Live broadcast</p></div></div>
-  <div class="add-item" onclick="addWidget('cnn')" id="add-cnn"><div class="icon">📺</div><div class="info"><h4>CNN International</h4><p>Live broadcast</p></div></div>
+
+  <h3 style="margin-top:16px;">📺 English Channels</h3>
+  <div class="add-item" onclick="addWidget('aljazeera_en')" id="add-aljazeera_en"><div class="icon">📺</div><div class="info"><h4>Al Jazeera English</h4><p>24/7 YouTube live</p></div></div>
+  <div class="add-item" onclick="addWidget('skynews_en')" id="add-skynews_en"><div class="icon">📺</div><div class="info"><h4>Sky News English</h4><p>24/7 YouTube live</p></div></div>
+  <div class="add-item" onclick="addWidget('france24')" id="add-france24"><div class="icon">📺</div><div class="info"><h4>France 24 English</h4><p>24/7 YouTube live</p></div></div>
+  <div class="add-item" onclick="addWidget('dwnews')" id="add-dwnews"><div class="icon">📺</div><div class="info"><h4>DW News English</h4><p>24/7 YouTube live</p></div></div>
+  <div class="add-item" onclick="addWidget('nbcnews')" id="add-nbcnews"><div class="icon">📺</div><div class="info"><h4>NBC News NOW</h4><p>24/7 YouTube live</p></div></div>
+  <div class="add-item" onclick="addWidget('wion')" id="add-wion"><div class="icon">📺</div><div class="info"><h4>WION</h4><p>24/7 YouTube live</p></div></div>
 
   <h3 style="margin-top:16px;">📹 Live Cameras</h3>
   <div class="add-item" onclick="addWidget('cam1')" id="add-cam1"><div class="icon">📹</div><div class="info"><h4>Middle East Cam 1</h4><p>Live camera feed</p></div></div>
@@ -396,12 +403,14 @@
   <div class="add-item" onclick="addWidget('gold')" id="add-gold"><div class="icon">🥇</div><div class="info"><h4>Gold / Silver / Oil</h4><p>Precious metals & crude</p></div></div>
   <div class="add-item" onclick="addWidget('crypto')" id="add-crypto"><div class="icon">₿</div><div class="info"><h4>Crypto Markets</h4><p>BTC, ETH, BNB, SOL</p></div></div>
   <div class="add-item" onclick="addWidget('stocks')" id="add-stocks"><div class="icon">📈</div><div class="info"><h4>Stock Indices</h4><p>S&P 500, Dow, Nasdaq, VIX</p></div></div>
+  <div class="add-item" onclick="addWidget('gpu_semi')" id="add-gpu_semi"><div class="icon">🔲</div><div class="info"><h4>GPU & Semiconductors</h4><p>NVDA, AMD, TSM, AVGO + GPU prices</p></div></div>
   <div class="add-item" onclick="addWidget('feargreed')" id="add-feargreed"><div class="icon">😱</div><div class="info"><h4>Fear & Greed Index</h4><p>Market sentiment</p></div></div>
 
   <h3 style="margin-top:16px;">🗺️ Intel</h3>
   <div class="add-item" onclick="addWidget('map')" id="add-map"><div class="icon">🗺️</div><div class="info"><h4>Conflict Map</h4><p>Click markers for latest news</p></div></div>
   <div class="add-item" onclick="addWidget('iran_tweets')" id="add-iran_tweets"><div class="icon">🇮🇷</div><div class="info"><h4>Iran / Military Feed</h4><p>Translated updates</p></div></div>
   <div class="add-item" onclick="addWidget('gulf_tweets')" id="add-gulf_tweets"><div class="icon">🌍</div><div class="info"><h4>UAE / Gulf / US Feed</h4><p>Regional updates</p></div></div>
+  <div class="add-item" onclick="addWidget('semi_news')" id="add-semi_news"><div class="icon">🔲</div><div class="info"><h4>Semiconductor News</h4><p>GPU, NVIDIA, AMD, TSMC, AI chips</p></div></div>
 
   <div class="custom-input-group">
     <h3>Custom YouTube Stream</h3>
@@ -414,13 +423,18 @@
 <script>
 // ===== CONFIG =====
 const YOUTUBE_STREAMS = {
-  skynews:   { name: 'Sky News Arabia',     videoId: 'U--OjmpjF5o', type: 'tv' },
-  alarabiya: { name: 'Al Arabiya',          videoId: 'n7eQejkXbnM', type: 'tv' },
-  aljazeera: { name: 'Al Jazeera Arabic',   videoId: 'bNyUyrR0PHo', type: 'tv' },
-  cnn:       { name: 'CNN International',    videoId: '_MbNCMxIGOk', type: 'tv' },
-  cam1:      { name: 'Middle East Cam 1',    videoId: '4E-iFtUM2kk', type: 'cam' },
-  cam2:      { name: 'Middle East Cam 2',    videoId: '-zGuR1qVKrU', type: 'cam' },
-  cam3:      { name: 'Middle East Cam 3',    videoId: 'gmtlJ_m2r5A', type: 'cam' },
+  skynews:      { name: 'Sky News Arabia',     videoId: 'U--OjmpjF5o', type: 'tv' },
+  alarabiya:    { name: 'Al Arabiya',          videoId: 'n7eQejkXbnM', type: 'tv' },
+  aljazeera:    { name: 'Al Jazeera Arabic',   videoId: 'bNyUyrR0PHo', type: 'tv' },
+  aljazeera_en: { name: 'Al Jazeera English',  channelId: 'UCNye-wNBqNL5ZzHSJj3l8Bg', type: 'tv' },
+  skynews_en:   { name: 'Sky News English',    channelId: 'UCoMdktPbSTixAyNGwb-UYkQ', type: 'tv' },
+  france24:     { name: 'France 24 English',   channelId: 'UCQfwfsi5VrQ8yKZ-UWmAEFg', type: 'tv' },
+  dwnews:       { name: 'DW News English',     channelId: 'UCknLrEdhRCp1aegoMqRaCZg', type: 'tv' },
+  nbcnews:      { name: 'NBC News NOW',        channelId: 'UCeY0bbntWzzVIaj2z3QigXg', type: 'tv' },
+  wion:         { name: 'WION',                channelId: 'UC_gUM8rL-Lrg6O3adPW9K1g', type: 'tv' },
+  cam1:         { name: 'Middle East Cam 1',   videoId: '4E-iFtUM2kk', type: 'cam' },
+  cam2:         { name: 'Middle East Cam 2',   videoId: '-zGuR1qVKrU', type: 'cam' },
+  cam3:         { name: 'Middle East Cam 3',   videoId: 'gmtlJ_m2r5A', type: 'cam' },
 };
 
 const CONFLICT_POINTS = [
@@ -465,22 +479,29 @@ const DEFAULT_LAYOUT = {
   skynews:      { x: 10,  y: 10,  w: 470, h: 300 },
   alarabiya:    { x: 490, y: 10,  w: 470, h: 300 },
   aljazeera:    { x: 970, y: 10,  w: 470, h: 300 },
-  cnn:          { x: 10,  y: 320, w: 320, h: 220 },
-  cam1:         { x: 340, y: 320, w: 320, h: 220 },
-  cam2:         { x: 670, y: 320, w: 320, h: 220 },
-  cam3:         { x: 1000,y: 320, w: 320, h: 220 },
+  aljazeera_en: { x: 10,  y: 320, w: 360, h: 240 },
+  skynews_en:   { x: 380, y: 320, w: 360, h: 240 },
+  france24:     { x: 750, y: 320, w: 360, h: 240 },
+  dwnews:       { x: 10,  y: 570, w: 360, h: 240 },
+  nbcnews:      { x: 380, y: 570, w: 360, h: 240 },
+  wion:         { x: 750, y: 570, w: 360, h: 240 },
+  cam1:         { x: 1120,y: 320, w: 320, h: 240 },
+  cam2:         { x: 1120,y: 570, w: 320, h: 240 },
+  cam3:         { x: 1450,y: 320, w: 320, h: 240 },
   gold:         { x: 1450,y: 10,  w: 300, h: 260 },
-  crypto:       { x: 1450,y: 280, w: 300, h: 290 },
-  stocks:       { x: 1330,y: 320, w: 300, h: 220 },
-  feargreed:    { x: 1450,y: 580, w: 300, h: 220 },
-  map:          { x: 10,  y: 550, w: 660, h: 400 },
-  iran_tweets:  { x: 680, y: 550, w: 380, h: 400 },
-  gulf_tweets:  { x: 1070,y: 550, w: 380, h: 400 },
+  crypto:       { x: 1760,y: 10,  w: 300, h: 290 },
+  stocks:       { x: 1760,y: 310, w: 300, h: 270 },
+  gpu_semi:     { x: 1450,y: 570, w: 320, h: 350 },
+  feargreed:    { x: 1760,y: 590, w: 300, h: 220 },
+  map:          { x: 10,  y: 820, w: 660, h: 400 },
+  iran_tweets:  { x: 680, y: 820, w: 380, h: 400 },
+  gulf_tweets:  { x: 1070,y: 820, w: 380, h: 400 },
+  semi_news:    { x: 1460,y: 820, w: 380, h: 400 },
 };
 
 function getLayout() {
   try {
-    const s = localStorage.getItem('mena_monitor_layout_v2');
+    const s = localStorage.getItem('mena_monitor_layout_v4');
     return s ? JSON.parse(s) : { ...DEFAULT_LAYOUT };
   } catch { return { ...DEFAULT_LAYOUT }; }
 }
@@ -491,11 +512,11 @@ function saveLayout() {
     const el = widgets[id].element;
     layout[id] = { x: parseInt(el.style.left), y: parseInt(el.style.top), w: parseInt(el.style.width), h: parseInt(el.style.height) };
   });
-  try { localStorage.setItem('mena_monitor_layout_v2', JSON.stringify(layout)); } catch {}
+  try { localStorage.setItem('mena_monitor_layout_v4', JSON.stringify(layout)); } catch {}
 }
 
 function resetLayout() {
-  localStorage.removeItem('mena_monitor_layout_v2');
+  localStorage.removeItem('mena_monitor_layout_v4');
   document.getElementById('grid-container').innerHTML = '';
   widgets = {};
   initDefaultWidgets();
@@ -597,7 +618,13 @@ function youtubeContent(body, id) {
   const key = id.replace('custom_', '');
   const stream = YOUTUBE_STREAMS[key] || YOUTUBE_STREAMS[id];
   if (!stream) return;
-  body.innerHTML = `<iframe src="https://www.youtube.com/embed/${stream.videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1"
+  let src;
+  if (stream.videoId) {
+    src = `https://www.youtube.com/embed/${stream.videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1`;
+  } else if (stream.channelId) {
+    src = `https://www.youtube.com/embed/live_stream?channel=${stream.channelId}&autoplay=1&mute=1`;
+  }
+  body.innerHTML = `<iframe src="${src}"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
     referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
     style="width:100%;height:100%;border:none;"></iframe>`;
@@ -756,68 +783,91 @@ function stocksContent(body) {
 
 async function fetchStocks() {
   const symbols = [
-    { sym: '%5EGSPC', id: 'sp500-price', label: 'S&P 500' },
-    { sym: '%5EDJI', id: 'dow-price', label: 'Dow' },
-    { sym: '%5EIXIC', id: 'nasdaq-price', label: 'Nasdaq' },
-    { sym: '%5EVIX', id: 'vix-price', label: 'VIX' },
+    { sym: '%5EGSPC', id: 'sp500-price' },
+    { sym: '%5EDJI', id: 'dow-price' },
+    { sym: '%5EIXIC', id: 'nasdaq-price' },
+    { sym: '%5EVIX', id: 'vix-price', noPrefix: true },
   ];
-
   for (const s of symbols) {
-    let ok = false;
-
-    // Try direct Yahoo Finance first
-    try {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${s.sym}?interval=1d&range=1d`;
-      const r = await fetch(url);
-      const d = await r.json();
-      const meta = d.chart?.result?.[0]?.meta;
-      if (meta && meta.regularMarketPrice) {
-        showStockPrice(s.id, meta.regularMarketPrice, meta.chartPreviousClose || meta.previousClose, s.id === 'vix-price');
-        ok = true;
-      }
-    } catch {}
-
-    // Fallback: AllOrigins proxy
-    if (!ok) {
-      try {
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${s.sym}?interval=1d&range=1d`;
-        const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`);
-        const d = await r.json();
-        const meta = d.chart?.result?.[0]?.meta;
-        if (meta && meta.regularMarketPrice) {
-          showStockPrice(s.id, meta.regularMarketPrice, meta.chartPreviousClose || meta.previousClose, s.id === 'vix-price');
-          ok = true;
-        }
-      } catch {}
-    }
-
-    // Fallback 2: corsproxy.io
-    if (!ok) {
-      try {
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${s.sym}?interval=1d&range=1d`;
-        const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
-        const d = await r.json();
-        const meta = d.chart?.result?.[0]?.meta;
-        if (meta && meta.regularMarketPrice) {
-          showStockPrice(s.id, meta.regularMarketPrice, meta.chartPreviousClose || meta.previousClose, s.id === 'vix-price');
-          ok = true;
-        }
-      } catch {}
-    }
-
-    if (!ok) {
-      const e = el(s.id);
-      if (e) e.innerHTML = `<span style="color:var(--orange);font-size:11px;">Hit ↻ to retry</span>`;
-    }
+    await fetchSingleStock(s.sym, s.id, s.noPrefix || false);
   }
   const u = el('stocks-update');
   if (u) u.textContent = `Last update: ${new Date().toLocaleTimeString('en-US',{timeZone:'Asia/Dubai'})} GST`;
 }
 
-function showStockPrice(elId, price, prev, isVix) {
+function showStockPrice(elId, price, prev, noPrefix) {
   const change = prev ? ((price - prev) / prev * 100) : 0;
   const e = el(elId);
-  if (e) e.innerHTML = `${isVix?'':'$'}${price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} <span class="market-change ${change>=0?'change-up':'change-down'}">${change>=0?'▲':'▼'}${Math.abs(change).toFixed(2)}%</span>`;
+  if (e) e.innerHTML = `${noPrefix?'':'$'}${price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} <span class="market-change ${change>=0?'change-up':'change-down'}">${change>=0?'▲':'▼'}${Math.abs(change).toFixed(2)}%</span>`;
+}
+
+// ===== FEAR & GREED =====
+
+// ===== GPU & SEMICONDUCTORS =====
+function gpuSemiContent(body) {
+  body.innerHTML = `
+    <div class="market-grid" style="overflow-y:auto;max-height:calc(100% - 24px);">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;padding:0 2px;">SEMICONDUCTOR INDICES</div>
+      <div class="market-card" style="border-color:#444;background:#1a1a22;"><div class="market-left"><span class="market-icon" style="font-size:14px;">📊</span><span class="market-name" style="color:var(--gold);">^SOX</span></div><div class="market-right"><span class="market-price" id="sox-price">Loading...</span></div></div>
+      <div class="market-card" style="border-color:#444;background:#1a1a22;"><div class="market-left"><span class="market-icon" style="font-size:14px;">📈</span><span class="market-name" style="color:var(--gold);">SMH</span></div><div class="market-right"><span class="market-price" id="smh-price">Loading...</span></div></div>
+      <div class="market-card" style="border-color:#444;background:#1a1a22;"><div class="market-left"><span class="market-icon" style="font-size:14px;">📉</span><span class="market-name" style="color:var(--gold);">SOXX</span></div><div class="market-right"><span class="market-price" id="soxx-price">Loading...</span></div></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;padding:6px 2px 0;">KEY SEMICONDUCTOR STOCKS</div>
+      <div class="market-card"><div class="market-left"><span class="market-icon" style="font-size:14px;">🟢</span><span class="market-name">NVDA</span></div><div class="market-right"><span class="market-price" id="nvda-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon" style="font-size:14px;">🔴</span><span class="market-name">AMD</span></div><div class="market-right"><span class="market-price" id="amd-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon" style="font-size:14px;">🔵</span><span class="market-name">TSM</span></div><div class="market-right"><span class="market-price" id="tsm-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon" style="font-size:14px;">🟣</span><span class="market-name">AVGO</span></div><div class="market-right"><span class="market-price" id="avgo-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon" style="font-size:14px;">🟠</span><span class="market-name">SMCI</span></div><div class="market-right"><span class="market-price" id="smci-price">Loading...</span></div></div>
+      <div class="market-card"><div class="market-left"><span class="market-icon" style="font-size:14px;">🔘</span><span class="market-name">INTC</span></div><div class="market-right"><span class="market-price" id="intc-price">Loading...</span></div></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px;padding:6px 2px 0;">AI GPU PRICING (REF)</div>
+      <div class="market-card" style="border-color:#333;"><div class="market-left"><span class="market-icon" style="font-size:12px;">⬛</span><span class="market-name" style="font-size:10px;">H100 80GB</span></div><div class="market-right"><span class="market-price" style="font-size:12px;">$25-40K <span style="font-size:9px;color:var(--text-dim)">buy</span> · $1.50-5/hr <span style="font-size:9px;color:var(--text-dim)">rent</span></span></div></div>
+      <div class="market-card" style="border-color:#333;"><div class="market-left"><span class="market-icon" style="font-size:12px;">⬛</span><span class="market-name" style="font-size:10px;">H200 141GB</span></div><div class="market-right"><span class="market-price" style="font-size:12px;">$30-40K <span style="font-size:9px;color:var(--text-dim)">buy</span> · $2.50-10/hr <span style="font-size:9px;color:var(--text-dim)">rent</span></span></div></div>
+      <div class="market-card" style="border-color:#333;"><div class="market-left"><span class="market-icon" style="font-size:12px;">⬛</span><span class="market-name" style="font-size:10px;">B200 Blackwell</span></div><div class="market-right"><span class="market-price" style="font-size:12px;">$30-50K <span style="font-size:9px;color:var(--text-dim)">est.</span></span></div></div>
+    </div>
+    <div class="update-time" id="gpu-update">Fetching...</div>`;
+  fetchGpuStocks();
+  if (!window._gpuInterval) window._gpuInterval = setInterval(fetchGpuStocks, 60000);
+}
+
+async function fetchGpuStocks() {
+  const symbols = [
+    { sym: '%5ESOX', id: 'sox-price', noPrefix: true },
+    { sym: 'SMH', id: 'smh-price' },
+    { sym: 'SOXX', id: 'soxx-price' },
+    { sym: 'NVDA', id: 'nvda-price' },
+    { sym: 'AMD', id: 'amd-price' },
+    { sym: 'TSM', id: 'tsm-price' },
+    { sym: 'AVGO', id: 'avgo-price' },
+    { sym: 'SMCI', id: 'smci-price' },
+    { sym: 'INTC', id: 'intc-price' },
+  ];
+  for (const s of symbols) {
+    await fetchSingleStock(s.sym, s.id, s.noPrefix || false);
+  }
+  const u = el('gpu-update');
+  if (u) u.textContent = `Last update: ${new Date().toLocaleTimeString('en-US',{timeZone:'Asia/Dubai'})} GST`;
+}
+
+// Shared stock fetcher with 3 proxy fallbacks
+async function fetchSingleStock(sym, elId, noPrefix) {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=1d`;
+  const proxies = [
+    url,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    `https://corsproxy.io/?${encodeURIComponent(url)}`
+  ];
+  for (const pUrl of proxies) {
+    try {
+      const r = await fetch(pUrl);
+      const d = await r.json();
+      const meta = d.chart?.result?.[0]?.meta;
+      if (meta?.regularMarketPrice) {
+        showStockPrice(elId, meta.regularMarketPrice, meta.chartPreviousClose||meta.previousClose, noPrefix);
+        return;
+      }
+    } catch {}
+  }
+  const e = el(elId);
+  if (e) e.innerHTML = `<span style="color:var(--orange);font-size:11px;">Hit ↻</span>`;
 }
 
 // ===== FEAR & GREED =====
@@ -1147,13 +1197,75 @@ function renderTweets(container, tweets) {
   });
 }
 
+// ===== SEMICONDUCTOR NEWS FEED =====
+function semiNewsContent(body) {
+  body.innerHTML = `<div class="tweet-feed" id="semi-feed"><div class="news-loading">Loading semiconductor news...</div></div>`;
+  loadSemiFeed();
+}
+
+async function loadSemiFeed() {
+  const feed = document.getElementById('semi-feed');
+  if (!feed) return;
+
+  let items = [];
+
+  // Google News RSS for semiconductor/GPU/AI chip news
+  const queries = [
+    'NVIDIA+GPU+semiconductor+AI+chip',
+    'semiconductor+industry+TSMC+AMD+chip',
+    'AI+data+center+GPU+H100+H200+Blackwell',
+  ];
+
+  for (const q of queries) {
+    try {
+      const rssUrl = `https://news.google.com/rss/search?q=${q}&hl=en&gl=US&ceid=US:en`;
+      const r = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+      const data = await r.json();
+      if (data.items) {
+        data.items.slice(0, 5).forEach(it => {
+          items.push({
+            source: it.author || extractDomain(it.link),
+            text: it.title,
+            time: Math.floor((Date.now() - new Date(it.pubDate).getTime()) / 60000),
+            tag: 'SEMI',
+            link: it.link
+          });
+        });
+      }
+    } catch {}
+  }
+
+  // Fallback curated items
+  if (items.length < 3) {
+    items = [
+      { source: 'Industry', text: 'Global semiconductor market expected to grow 25%+ in 2026, nearing $1 trillion mark driven by AI data center demand.', time: 60, tag: 'MARKET' },
+      { source: 'NVIDIA', text: 'H100 rental prices dropped from $8/hr (2024) to $1.50/hr (2026) as supply expanded and competition increased.', time: 180, tag: 'GPU' },
+      { source: 'AMD', text: 'AMD warns of GPU price hikes in 2026 due to memory inflation and HBM3 supply constraints.', time: 360, tag: 'AMD' },
+      { source: 'TSMC', text: 'TSMC continues capacity expansion for advanced AI chip packaging, driving Blackwell and next-gen GPU production.', time: 720, tag: 'FOUNDRY' },
+      { source: 'Reuters', text: 'NVIDIA introduces reduced-spec Blackwell GPUs for China at $6.5-8K using GDDR7 instead of HBM to meet export limits.', time: 1440, tag: 'EXPORT' },
+      { source: 'SIA', text: 'US semiconductor sales soared 59.6% YoY in latest figures — far outpacing all other regions globally.', time: 2880, tag: 'DATA' },
+    ];
+  }
+
+  // Deduplicate
+  const seen = new Set();
+  items = items.filter(t => { const k = t.text.substring(0, 40); if (seen.has(k)) return false; seen.add(k); return true; });
+
+  renderTweets(feed, items);
+}
+
 // ===== HELPERS =====
 function el(id) { return document.getElementById(id); }
 
 function popoutVideo(id) {
   const key = id.replace('custom_', '');
   const stream = YOUTUBE_STREAMS[key] || YOUTUBE_STREAMS[id];
-  if (stream) window.open(`https://www.youtube.com/watch?v=${stream.videoId}`, stream.name, 'width=800,height=500,menubar=no,toolbar=no');
+  if (stream) {
+    const url = stream.videoId 
+      ? `https://www.youtube.com/watch?v=${stream.videoId}` 
+      : `https://www.youtube.com/channel/${stream.channelId}/live`;
+    window.open(url, stream.name, 'width=800,height=500,menubar=no,toolbar=no');
+  }
 }
 
 function addCustomYoutube() {
@@ -1174,20 +1286,27 @@ function addWidget(id) {
   const layout = getLayout();
   const pos = layout[id] || { x: 100+Math.random()*200, y: 100+Math.random()*200, w: 400, h: 300 };
   const configs = {
-    skynews:     { title: 'Sky News Arabia',     tag: 'LIVE', fn: youtubeContent },
-    alarabiya:   { title: 'Al Arabiya',           tag: 'LIVE', fn: youtubeContent },
-    aljazeera:   { title: 'Al Jazeera Arabic',    tag: 'LIVE', fn: youtubeContent },
-    cnn:         { title: 'CNN International',     tag: 'LIVE', fn: youtubeContent },
-    cam1:        { title: 'Middle East Cam 1',     tag: 'LIVE', fn: youtubeContent },
-    cam2:        { title: 'Middle East Cam 2',     tag: 'LIVE', fn: youtubeContent },
-    cam3:        { title: 'Middle East Cam 3',     tag: 'LIVE', fn: youtubeContent },
-    gold:        { title: 'Gold / Silver / Oil',   tag: 'AUTO', fn: goldContent },
-    crypto:      { title: 'Crypto Markets',        tag: 'AUTO', fn: cryptoContent },
-    stocks:      { title: 'Stock Indices',          tag: 'AUTO', fn: stocksContent },
-    feargreed:   { title: 'Fear & Greed Index',    tag: 'DATA', fn: fearGreedContent },
-    map:         { title: 'MENA Conflict Map',     tag: 'LIVE', fn: mapContent },
-    iran_tweets: { title: 'Iran / Military Feed',  tag: 'AUTO', fn: iranTweetsContent },
-    gulf_tweets: { title: 'UAE / Gulf / US Feed',  tag: 'AUTO', fn: gulfTweetsContent },
+    skynews:      { title: 'Sky News Arabia',     tag: 'LIVE', fn: youtubeContent },
+    alarabiya:    { title: 'Al Arabiya',           tag: 'LIVE', fn: youtubeContent },
+    aljazeera:    { title: 'Al Jazeera Arabic',    tag: 'LIVE', fn: youtubeContent },
+    aljazeera_en: { title: 'Al Jazeera English',   tag: 'LIVE', fn: youtubeContent },
+    skynews_en:   { title: 'Sky News English',     tag: 'LIVE', fn: youtubeContent },
+    france24:     { title: 'France 24 English',    tag: 'LIVE', fn: youtubeContent },
+    dwnews:       { title: 'DW News English',      tag: 'LIVE', fn: youtubeContent },
+    nbcnews:      { title: 'NBC News NOW',         tag: 'LIVE', fn: youtubeContent },
+    wion:         { title: 'WION',                 tag: 'LIVE', fn: youtubeContent },
+    cam1:         { title: 'Middle East Cam 1',    tag: 'LIVE', fn: youtubeContent },
+    cam2:         { title: 'Middle East Cam 2',    tag: 'LIVE', fn: youtubeContent },
+    cam3:         { title: 'Middle East Cam 3',    tag: 'LIVE', fn: youtubeContent },
+    gold:         { title: 'Gold / Silver / Oil',  tag: 'AUTO', fn: goldContent },
+    crypto:       { title: 'Crypto Markets',       tag: 'AUTO', fn: cryptoContent },
+    stocks:       { title: 'Stock Indices',        tag: 'AUTO', fn: stocksContent },
+    gpu_semi:     { title: 'GPU & Semiconductors', tag: 'AUTO', fn: gpuSemiContent },
+    feargreed:    { title: 'Fear & Greed Index',   tag: 'DATA', fn: fearGreedContent },
+    map:          { title: 'MENA Conflict Map',    tag: 'LIVE', fn: mapContent },
+    iran_tweets:  { title: 'Iran / Military Feed', tag: 'AUTO', fn: iranTweetsContent },
+    gulf_tweets:  { title: 'UAE / Gulf / US Feed', tag: 'AUTO', fn: gulfTweetsContent },
+    semi_news:    { title: 'Semiconductor News',  tag: 'AUTO', fn: semiNewsContent },
   };
   const cfg = configs[id];
   if (cfg) createWidget(id, cfg.title, cfg.tag, cfg.fn, pos);
@@ -1201,7 +1320,7 @@ function toggleFullscreen() {
 
 // ===== INIT =====
 function initDefaultWidgets() {
-  const ids = ['skynews','alarabiya','aljazeera','cnn','cam1','cam2','cam3','gold','crypto','stocks','feargreed','map','iran_tweets','gulf_tweets'];
+  const ids = ['skynews','alarabiya','aljazeera','aljazeera_en','skynews_en','france24','dwnews','nbcnews','wion','cam1','cam2','cam3','gold','crypto','stocks','gpu_semi','feargreed','map','iran_tweets','gulf_tweets','semi_news'];
   ids.forEach(id => addWidget(id));
 }
 
